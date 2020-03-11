@@ -3,6 +3,8 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
 @import "./styles/colors.scss";
+@import "./styles/dialog.scss";
+@import "./styles/button.scss";
 
 * {
   box-sizing: border-box;
@@ -18,7 +20,7 @@ html {
 }
 
 body {
-  // color: $grey-09;
-  // background-color: $anthra-02;
+  color: $black-02;
+  background-color: $anthra-02;
   // font-size: 1.4rem;
 }
