@@ -11,8 +11,11 @@
         <span>{{ btnText }} List</span>
       </button>
     </section>
-    <section class="list">
+    <section class="list" *ngIf="expenseList$ | async as expenses">
       <!-- container for the list of expenses with each row being an expense -->
+      <div *ngFor="let expense of expenses">
+        <p>{{ expense.id }}</p>
+      </div>
     </section>
   </div>
 </main>
