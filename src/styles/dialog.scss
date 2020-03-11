@@ -1,0 +1,80 @@
+.backdrop-container {
+  background: $opaque-01;
+}
+
+.dialog-container {
+  max-width: 90% !important;
+  min-width: 300px;
+  max-height: 90%;
+
+  // mat-dialog-container {
+  //   background-color: $grey-01;
+  //   box-shadow: none;
+  //   color: $white;
+  //   padding: 0;
+
+  //   .dialog__header {
+  //     display: flex;
+  //     align-items: center;
+  //     justify-content: space-between;
+  //     letter-spacing: 1px;
+  //     padding: 0.8rem 1.5rem;
+  //     border-bottom: 1px solid $grey-02;
+
+  //     p {
+  //       font-size: 1.8rem;
+  //     }
+  //   }
+
+  //   .dialog__body {
+  //     display: flex;
+  //     flex-direction: column;
+  //     overflow-y: auto;
+  //     max-height: 70vh;
+  //     background-color: $grey-03;
+
+  //     .message {
+  //       padding: 2rem 1.5rem;
+
+  //       span {
+  //         font-style: italic;
+  //       }
+  //     }
+
+  //     .dialog__intro {
+  //       font-size: 1.4rem;
+  //       padding: 0.8rem 1.5rem;
+  //     }
+
+  //     .form-group-inline {
+  //       margin: 0 1.5rem 1rem;
+  //       padding-bottom: 1rem;
+
+  //       &:first-child {
+  //         margin-top: 1rem;
+  //       }
+  //     }
+  //   }
+
+  //   .dialog__footer {
+  //     display: flex;
+  //     align-items: center;
+  //     justify-content: flex-end;
+  //     padding: 0.8rem 1.5rem;
+  //     border-top: 1px solid $grey-02;
+
+  //     button {
+  //       min-width: 75px;
+  //       margin-right: 20px;
+
+  //       span {
+  //         font-size: 1.4rem;
+  //       }
+
+  //       &:last-child {
+  //         margin-right: 0;
+  //       }
+  //     }
+  //   }
+  // }
+}
