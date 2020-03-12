@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  rootURL: "localhost:3000/expenses"
+  rootURL: 'http://localhost:3000',
 };
 
 /*

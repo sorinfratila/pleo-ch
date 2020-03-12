@@ -17,7 +17,7 @@ export class Expense {
   index: number;
 }
 
-export type Currency = "DKK" | "GBP" | "EUR";
+export type Currency = 'DKK' | 'GBP' | 'EUR';
 
 // {
 //   "id": "5b996064dfd5b783915112f5",

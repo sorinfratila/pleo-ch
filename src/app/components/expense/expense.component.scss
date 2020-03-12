@@ -1,0 +1,89 @@
+@import '../../../styles/colors.scss';
+
+main {
+  width: 100%;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+
+    .left {
+      display: flex;
+      align-items: center;
+      font-size: 1.2rem;
+
+      span {
+        padding: 0.2rem 0.2rem;
+      }
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+
+      a {
+        padding: 0.5rem;
+      }
+    }
+  }
+
+  .accordion__body {
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    overflow: hidden;
+
+    &.opened {
+      opacity: 1;
+      max-height: 1350px;
+      transition: all 0.3s ease-in;
+    }
+
+    table {
+      width: 100%;
+      border-spacing: 0;
+      border-top: 1px solid $grey-02;
+      table-layout: fixed;
+      border-collapse: collapse;
+
+      &.hidden {
+        visibility: collapse;
+      }
+
+      &.shown {
+        visibility: visible;
+      }
+
+      .col_one {
+        width: 10rem;
+      }
+
+      .col_two {
+        width: 20rem;
+      }
+
+      tbody {
+        tr {
+          width: 100%;
+          &.hidden {
+            visibility: collapse;
+          }
+
+          &.shown {
+            visibility: visible;
+          }
+
+          td {
+            height: 4rem;
+            font-weight: 400;
+            padding: 0 2rem;
+            text-align: left;
+            // box-sizing: content-box;
+          }
+        }
+      }
+    }
+  }
+}

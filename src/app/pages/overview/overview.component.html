@@ -4,18 +4,12 @@
       <!-- contains some control buttons and text-->
       <h1>Welcome to your expenses page</h1>
       <p>
-        Here you can see you expense list by clicking the button bellow and you
-        can further filter your expenses.
+        Here you can see you expense list by clicking the button bellow and you can further filter your expenses.
       </p>
-      <button class="main" (click)="toggleList()">
-        <span>{{ btnText }} List</span>
-      </button>
     </section>
     <section class="list" *ngIf="expenseList$ | async as expenses">
       <!-- container for the list of expenses with each row being an expense -->
-      <div *ngFor="let expense of expenses">
-        <p>{{ expense.id }}</p>
-      </div>
+      <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
     </section>
   </div>
 </main>
