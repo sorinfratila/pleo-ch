@@ -15,7 +15,7 @@ export class ExpenseComponent implements OnInit {
   /**
    * toggle the expense to see/hide details
    */
-  onHeaderPress = (ev: any) => {
+  onHeaderPress = () => {
     console.log('opened');
   };
 
