@@ -1,5 +1,5 @@
 <main>
-  <section class="header" (click)="onHeaderPress()">
+  <section class="header" (click)="onHeaderPress(expense.isOpen)">
     <!-- this part contains the most important parts of the expense -->
     <div class="left">
       <span>{{ expense.user.first }}</span>
@@ -13,7 +13,7 @@
       <a (click)="onAddComment($event)" class="pointer"><i class="material-icons">add_comment</i></a>
     </div>
   </section>
-  <section class="accordion__body">
+  <section class="accordion__body" [ngClass]="{ opened: expense.isOpen }">
     <!-- this is the expandable part of the expnse revealing all the details -->
     <table>
       <col class="col_one">

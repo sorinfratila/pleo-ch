@@ -10,7 +10,6 @@ import { ExpensesService } from 'src/app/services/expenses.service';
   styleUrls: ['./overview.component.scss'],
 })
 export class OverviewComponent implements OnInit {
-  expensesList: Expense[] = [];
   expenseList$: Observable<any>;
 
   constructor(private expensesService: ExpensesService) {}
@@ -18,10 +17,16 @@ export class OverviewComponent implements OnInit {
   ngOnInit(): void {
     this.expenseList$ = this.expensesService.getExpenses().pipe(
       map((result: any) => {
-        console.log('result', result);
         const { total, expenses } = result;
-        return expenses;
+        const newExpenseList = this.appendProp(expenses);
+        return newExpenseList;
       }),
     );
   }
+
+  private appendProp = (list: Expense[]) => {
+    return list.map((exp: Expense) => {
+      return { ...exp, isOpen: false };
+    });
+  };
 }

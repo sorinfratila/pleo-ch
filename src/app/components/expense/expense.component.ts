@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
+import { MatDialog } from '@angular/material/dialog';
+import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
 
 @Component({
   selector: 'app-expense',
@@ -8,15 +10,18 @@ import { Expense } from 'src/app/models/Expense';
 })
 export class ExpenseComponent implements OnInit {
   @Input() expense: Expense;
-  constructor() {}
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit(): void {}
 
   /**
    * toggle the expense to see/hide details
    */
-  onHeaderPress = () => {
-    console.log('opened');
+  onHeaderPress = (isOpen: boolean) => {
+    this.expense = {
+      ...this.expense,
+      isOpen: !isOpen,
+    };
   };
 
   /**
@@ -25,6 +30,15 @@ export class ExpenseComponent implements OnInit {
   onAddReceipt = (ev: any) => {
     ev.stopPropagation();
     console.log('adding receipt');
+    const dialogRef = this.dialog.open(AddImageComponent, {
+      panelClass: 'dialog-container',
+      backdropClass: 'backdrop-container',
+      data: this.expense,
+    });
+
+    dialogRef.afterClosed().subscribe(res => {
+      console.log('add image dialog closed:', res);
+    });
   };
 
   /**

@@ -15,6 +15,7 @@ export class Expense {
     email: string;
   };
   index: number;
+  isOpen?: boolean; // used for toggling the expense accordions
 }
 
 export type Currency = 'DKK' | 'GBP' | 'EUR';
