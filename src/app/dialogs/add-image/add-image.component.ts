@@ -9,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './add-image.component.html',
   styleUrls: ['./add-image.component.scss'],
 })
-export class AddImageComponent implements OnInit {
+export class AddImageComponent {
   imageURL: string;
   progress: number;
 
@@ -22,8 +22,6 @@ export class AddImageComponent implements OnInit {
     this.imageURL = '';
     this.progress = 0;
   }
-
-  ngOnInit(): void {}
 
   close() {
     this.dialogRef.close('some value');

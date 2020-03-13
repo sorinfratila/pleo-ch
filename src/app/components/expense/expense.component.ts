@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
+import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
 
 @Component({
   selector: 'app-expense',
@@ -29,7 +30,6 @@ export class ExpenseComponent implements OnInit {
    */
   onAddReceipt = (ev: any) => {
     ev.stopPropagation();
-    console.log('adding receipt');
     const dialogRef = this.dialog.open(AddImageComponent, {
       panelClass: 'dialog-container',
       backdropClass: 'backdrop-container',
@@ -46,6 +46,14 @@ export class ExpenseComponent implements OnInit {
    */
   onAddComment = (ev: any) => {
     ev.stopPropagation();
-    console.log('adding comment');
+    const dialogRef = this.dialog.open(AddCommentDialogComponent, {
+      panelClass: 'dialog-container',
+      backdropClass: 'backdrop-container',
+      data: this.expense,
+    });
+
+    dialogRef.afterClosed().subscribe(res => {
+      console.log('add comment dialog closed:', res);
+    });
   };
 }

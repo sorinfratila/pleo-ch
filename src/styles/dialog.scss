@@ -34,6 +34,10 @@
       background-color: $grey-03;
       padding: 2rem 1.5rem;
 
+      section {
+        margin: 0.5rem 0 2rem 0;
+      }
+
       .dialog__intro {
         font-size: 1.4rem;
         margin-bottom: 1rem;
@@ -46,6 +50,14 @@
         label {
           font-size: 1.2rem;
           margin-right: 1rem;
+        }
+
+        &.textarea {
+          align-items: flex-start;
+
+          textarea {
+            width: 100%;
+          }
         }
       }
 
