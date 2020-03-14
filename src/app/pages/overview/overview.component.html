@@ -14,5 +14,9 @@
       <!-- container for the list of expenses with each row being an expense -->
       <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
     </section>
+
+    <section class="footer">
+      <app-pagination [nrOfPages]="nrOfPages" (pageChange)="onPageChange($event)"></app-pagination>
+    </section>
   </div>
 </main>

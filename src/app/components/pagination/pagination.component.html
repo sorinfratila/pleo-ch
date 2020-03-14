@@ -1,0 +1,13 @@
+<section>
+  <!-- <div class="arrow__container" (click)="prevPage()">
+    <i class="material-icons">keyboard_arrow_left</i>
+  </div> -->
+  <div class="pages">
+    <a class="pointer" [ngClass]="{ selected: page.selected }" (click)="goToPage(page)" *ngFor="let page of pages">{{
+      page.num
+    }}</a>
+  </div>
+  <!-- <div class="arrow__container" (click)="nextPage()">
+    <i class="material-icons">keyboard_arrow_right</i>
+  </div> -->
+</section>

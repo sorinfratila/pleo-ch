@@ -12,6 +12,7 @@ main {
     height: 100%;
     background-color: $content;
     padding: 1.5rem 2rem;
+    // position: relative;
 
     @media screen and (max-width: 500px) {
       width: 100%;
@@ -20,6 +21,7 @@ main {
 
     .header {
       width: 100%;
+      // position: fixed;
 
       p {
         font-size: 1.2rem;
@@ -30,6 +32,10 @@ main {
         line-height: 2;
         font-size: 1.6rem;
       }
+    }
+
+    .filters {
+      // margin-top: 10rem;
     }
 
     .list {

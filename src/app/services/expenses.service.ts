@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { Expense } from '../models/Expense';
 import { catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -32,7 +32,9 @@ export class ExpensesService {
   }
 
   public getExpenses(obj?: any): Observable<any> {
-    const link = obj ? `?limit=${obj.limit}offset=${obj.offset}` : '';
+    const link = obj ? `?limit=${obj.limit}&offset=${obj.offset}` : '';
+
+    console.log('link', link);
     return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
   }
 
