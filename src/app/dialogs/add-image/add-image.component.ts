@@ -38,8 +38,10 @@ export class AddImageComponent {
   }
 
   uploadReceipt(receipt: any) {
-    const file = receipt.files[0];
-    this.expenseService.uploadReceipt(file, this.data.id).subscribe((event: HttpEvent<any>) => {
+    // const file = receipt.files[0];
+    this.expenseService.uploadReceipt(receipt, this.data.id).subscribe((event: HttpEvent<any>) => {
+      console.log(event);
+
       switch (event.type) {
         case HttpEventType.UploadProgress: {
           this.progress = Math.round((event.loaded / event.total) * 100);

@@ -1,0 +1,24 @@
+<section class="accordion__body" [ngClass]="{ opened: isOpen }">
+  <table>
+    <col class="col_one">
+    <col class="col_two">
+    <tbody>
+      <tr>
+        <td><label>Date</label></td>
+        <td><p>{{ expense.date | date:'DD:MM:YY' }}</p></td>
+      </tr>
+      <tr>
+        <td><label>Merchant</label></td>
+        <td><p>{{ expense.merchant }}</p></td>
+      </tr>
+      <tr>
+        <td><label>Comment</label></td>
+        <td><p>{{ expense.comment }}</p></td>
+      </tr>
+      <tr>
+        <td><label>Category</label></td>
+        <td><p>{{ expense.category }}</p></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
