@@ -6,6 +6,7 @@
 @import './styles/colors.scss';
 @import './styles/dialog.scss';
 @import './styles/button.scss';
+@import './styles/select.scss';
 
 * {
   box-sizing: border-box;
@@ -28,4 +29,8 @@ body {
 
 .pointer {
   cursor: pointer;
+}
+
+.material-icons {
+  font-size: 30px;
 }

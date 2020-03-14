@@ -5,9 +5,10 @@ import { components } from './app.components';
 import { imports } from './app.imports';
 import { AccordionComponent } from './components/accordion/accordion.component';
 import { ThumbnailComponent } from './components/thumbnail/thumbnail.component';
+import { FilterComponent } from './components/filter/filter.component';
 
 @NgModule({
-  declarations: [components, AccordionComponent, ThumbnailComponent],
+  declarations: [components, AccordionComponent, ThumbnailComponent, FilterComponent],
   imports: [imports],
   providers: [],
   bootstrap: [AppComponent],

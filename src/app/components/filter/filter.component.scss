@@ -1,0 +1,17 @@
+section {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  label {
+    margin-right: 1rem;
+  }
+
+  .direction {
+    margin-left: 2rem;
+    display: flex;
+    align-items: center;
+  }
+}

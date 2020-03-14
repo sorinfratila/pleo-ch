@@ -31,8 +31,13 @@ export class ExpensesService {
     // this.expensesUpdates.next(newExpenseList);
   }
 
-  public getExpenses(): Observable<any> {
-    return this.http.get(`${this.baseURL}/expenses`).pipe(catchError(this.errorHandler));
+  public getExpenses(obj?: any): Observable<any> {
+    const link = obj ? `?limit=${obj.limit}offset=${obj.offset}` : '';
+    return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
+  }
+
+  public getAllExpenses({ limit }): Observable<any> {
+    return this.http.get(`${this.baseURL}/expenses?limit=${limit}&offset=${0}`).pipe(catchError(this.errorHandler));
   }
 
   public uploadReceipt(receipt: File, expenseId: string): Observable<any> {

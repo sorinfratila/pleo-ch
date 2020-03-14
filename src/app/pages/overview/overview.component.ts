@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExpensesService } from 'src/app/services/expenses.service';
+import { DIRECTION } from 'src/app/components/filter/filter.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-overview',
@@ -10,24 +12,67 @@ import { ExpensesService } from 'src/app/services/expenses.service';
   styleUrls: ['./overview.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OverviewComponent implements OnInit {
-  expenseList$: Observable<any>;
+export class OverviewComponent implements OnInit, OnDestroy {
+  expenses$: Subscription;
+  filteredExpenses$: Subscription;
+  expenses: Expense[] = [];
+  totalValue: number;
+  direction: DIRECTION;
+  filter: string;
 
-  constructor(private expensesService: ExpensesService) {}
+  constructor(private expensesService: ExpensesService, private toast: ToastrService, private CDR: ChangeDetectorRef) {
+    this.totalValue = 0;
+    this.direction = 'ASC';
+    this.filter = 'default';
+  }
 
   ngOnInit(): void {
-    this.expenseList$ = this.expensesService.getExpenses().pipe(
-      map((result: any) => {
+    this.subscribeToExpenses();
+  }
+
+  ngOnDestroy(): void {
+    if (this.expenses$) this.expenses$.unsubscribe();
+  }
+
+  private subscribeToExpenses() {
+    this.expenses$ = this.expensesService.getExpenses().subscribe({
+      next: (result: any) => {
         const { total, expenses } = result;
-        const newExpenseList = this.appendProp(expenses);
-        return newExpenseList;
-      }),
-    );
+        this.totalValue = total;
+        this.expenses = this.appendProp(expenses);
+        this.CDR.detectChanges();
+      },
+      error: err => this.toast.error(err),
+    });
   }
 
   private appendProp = (list: Expense[]) => {
     return list.map((exp: Expense) => {
       return { ...exp, isOpen: false };
     });
+  };
+
+  public onFilterChange = (filter: string) => {
+    this.filter = filter;
+    if (filter !== 'default') {
+      this.expenses$.unsubscribe();
+      this.filteredExpenses$ = this.expensesService.getAllExpenses({ limit: this.totalValue }).subscribe({
+        next: res => {
+          const { total, expenses } = res;
+          this.totalValue = total;
+          this.expenses = expenses.filter((ex: Expense) => ex.amount.currency === filter);
+          this.CDR.detectChanges();
+        },
+        error: err => this.toast.error(err),
+      });
+    } else {
+      this.filteredExpenses$.unsubscribe();
+      this.subscribeToExpenses();
+    }
+  };
+
+  public onDirectionChange = (direction: DIRECTION) => {
+    console.log('direction', direction);
+    this.direction = direction;
   };
 }

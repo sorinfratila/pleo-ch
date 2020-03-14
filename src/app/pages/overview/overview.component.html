@@ -7,7 +7,10 @@
         Here you can see you expense list by clicking the button bellow and you can further filter your expenses.
       </p>
     </section>
-    <section class="list" *ngIf="expenseList$ | async as expenses">
+    <section class="filters">
+      <app-filter (filterChange)="onFilterChange($event)" (directionChange)="onDirectionChange($event)"></app-filter>
+    </section>
+    <section class="list">
       <!-- container for the list of expenses with each row being an expense -->
       <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
     </section>
