@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AddImageComponent } from '../add-image/add-image.component';
 import { ExpensesService } from 'src/app/services/expenses.service';
@@ -9,20 +9,29 @@ import { Expense } from 'src/app/models/Expense';
   selector: 'app-add-comment-dialog',
   templateUrl: './add-comment-dialog.component.html',
   styleUrls: ['./add-comment-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddCommentDialogComponent {
+export class AddCommentDialogComponent implements AfterViewInit {
   comment: string;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddImageComponent>,
     private expenseService: ExpensesService,
     private toast: ToastrService,
+    private CDR: ChangeDetectorRef,
   ) {
     this.comment = '';
   }
 
-  public close(res: Expense) {
-    this.dialogRef.close(res);
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.CDR.detectChanges();
+    }, 50);
+  }
+
+  public close(res?: Expense) {
+    if (res) this.dialogRef.close(res);
+    else this.dialogRef.close();
   }
 
   public onSubmit() {

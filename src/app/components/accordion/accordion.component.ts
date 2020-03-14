@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-accordion',
@@ -11,7 +12,11 @@ export class AccordionComponent implements OnInit {
   @Input() expense: Expense;
   @Input() showReceipts: boolean;
 
-  constructor() {}
+  baseURL: string;
+
+  constructor() {
+    this.baseURL = environment.rootURL;
+  }
 
   ngOnInit(): void {}
 }

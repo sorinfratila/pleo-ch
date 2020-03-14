@@ -7,8 +7,8 @@
     <p class="dialog__intro">Here you can add a comment to the expense.</p>
     <app-accordion [expense]="data" [showReceipts]="false"></app-accordion>
     <div class="input__container textarea">
-      <label for="comment">Comment: </label>
-      <textarea name="comment" [(ngModel)]="comment" required type="text" rows="5"></textarea>
+      <label for="comment">Comment*: </label>
+      <textarea name="comment" required [(ngModel)]="comment" type="text" rows="5"></textarea>
     </div>
   </div>
 

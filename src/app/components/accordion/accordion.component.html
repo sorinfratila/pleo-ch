@@ -25,7 +25,11 @@
       </tr>
       <tr *ngIf="showReceipts">
         <td><label>Receipts</label></td>
-        <td></td>
+        <td class="receipts">
+          <div class="container">
+            <app-thumbnail *ngFor="let receipt of expense.receipts" [src]="baseURL + receipt.url"></app-thumbnail>
+          </div>
+        </td>
       </tr>
       <tr></tr>
       <tr>

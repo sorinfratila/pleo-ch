@@ -10,7 +10,7 @@
       <input name="receiptUpload" #imageInput type="file" required (change)="processReceipt(imageInput)" />
     </div>
     <div class="preview__container">
-      <img [src]="imageURL" *ngIf="imageURL !== ''" alt="Preview Image" />
+      <img [src]="imageURL" *ngIf="imageURL" alt="Preview Image" />
     </div>
     <!-- Progress Bar -->
     <div class="progress" *ngIf="progress > 0">

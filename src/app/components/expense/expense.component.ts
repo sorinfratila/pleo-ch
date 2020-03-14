@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
@@ -8,10 +8,11 @@ import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/ad
   selector: 'app-expense',
   templateUrl: './expense.component.html',
   styleUrls: ['./expense.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpenseComponent implements OnInit {
   @Input() expense: Expense;
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private CDR: ChangeDetectorRef) {}
 
   ngOnInit(): void {}
 
@@ -28,7 +29,7 @@ export class ExpenseComponent implements OnInit {
   /**
    * add image for receipt trigger
    */
-  onAddReceipt = (ev: any) => {
+  onAddReceipt = (ev: MouseEvent) => {
     ev.stopPropagation();
     const dialogRef = this.dialog.open(AddImageComponent, {
       panelClass: 'dialog-container',
@@ -36,18 +37,18 @@ export class ExpenseComponent implements OnInit {
       data: this.expense,
     });
 
-    dialogRef.afterClosed().subscribe((res: Expense) => {
-      this.expense = {
-        ...this.expense,
-        ...res,
-      };
+    dialogRef.afterClosed().subscribe((res?: Expense) => {
+      if (res) {
+        this.expense = { ...res, isOpen: this.expense.isOpen };
+        this.CDR.detectChanges();
+      }
     });
   };
 
   /**
    * add comment
    */
-  onAddComment = (ev: any) => {
+  onAddComment = (ev: MouseEvent) => {
     ev.stopPropagation();
     const newExpense = {
       ...this.expense,
@@ -60,11 +61,11 @@ export class ExpenseComponent implements OnInit {
       data: newExpense,
     });
 
-    dialogRef.afterClosed().subscribe((res: Expense) => {
-      this.expense = {
-        ...this.expense,
-        ...res,
-      };
+    dialogRef.afterClosed().subscribe((res?: Expense) => {
+      if (res) {
+        this.expense = { ...res, isOpen: this.expense.isOpen };
+        this.CDR.detectChanges();
+      }
     });
   };
 }

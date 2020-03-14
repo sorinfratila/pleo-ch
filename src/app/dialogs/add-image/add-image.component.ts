@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -9,6 +9,7 @@ import { Expense } from 'src/app/models/Expense';
   selector: 'app-add-image',
   templateUrl: './add-image.component.html',
   styleUrls: ['./add-image.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddImageComponent {
   imageURL: string;
@@ -19,13 +20,15 @@ export class AddImageComponent {
     public dialogRef: MatDialogRef<AddImageComponent>,
     private expenseService: ExpensesService,
     private toast: ToastrService,
+    private CDR: ChangeDetectorRef,
   ) {
     this.imageURL = '';
     this.progress = 0;
   }
 
-  close(res: Expense) {
-    this.dialogRef.close(res);
+  close(res?: Expense) {
+    if (res) this.dialogRef.close(res);
+    else this.dialogRef.close();
   }
 
   processReceipt(receipt: any) {
@@ -34,6 +37,7 @@ export class AddImageComponent {
 
     reader.onload = () => {
       this.imageURL = reader.result as string;
+      this.CDR.detectChanges();
     };
     reader.readAsDataURL(file);
   }
