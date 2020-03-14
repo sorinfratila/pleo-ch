@@ -13,33 +13,7 @@
       <a (click)="onAddComment($event)" class="pointer"><i class="material-icons">add_comment</i></a>
     </div>
   </section>
-  <section class="accordion__body" [ngClass]="{ opened: expense.isOpen }">
-    <!-- this is the expandable part of the expnse revealing all the details -->
-    <table>
-      <col class="col_one">
-      <col class="col_two">
-      <tbody>
-        <tr>
-          <td><label>Date</label></td>
-          <td><p>some date</p></td>
-        </tr>
-        <tr>
-          <td><label>Merchant</label></td>
-          <td><p>some merchant</p></td>
-        </tr>
-        <tr>
-          <td><label>Receipts</label></td>
-          <td><p>some receipts</p></td>
-        </tr>
-        <tr>
-          <td><label>Comments</label></td>
-          <td><p>some comments</p></td>
-        </tr>
-        <tr>
-          <td><label>Category</label></td>
-          <td><p>some category</p></td>
-        </tr>
-      </tbody>
-    </table>
+  <section class="accordion__container">
+    <app-accordion [expense]="expense" [showReceipts]="true"></app-accordion>
   </section>
 </main>

@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
+import { FormsModule } from '@angular/forms';
 
 export const imports = [
   BrowserModule,
@@ -12,4 +13,5 @@ export const imports = [
   HttpClientModule,
   MatDialogModule,
   ToastrModule.forRoot(),
+  FormsModule,
 ];

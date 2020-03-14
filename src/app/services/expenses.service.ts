@@ -48,13 +48,17 @@ export class ExpensesService {
       .pipe(catchError(this.errorHandler));
   }
 
+  public uploadComment(comment: string, expenseId: string): Observable<any> {
+    const data = { comment };
+    return this.http.post(`${this.baseURL}/expenses/${expenseId}`, data).pipe(catchError(this.errorHandler));
+  }
+
   private errorHandler(error: HttpErrorResponse) {
     let errMsg = '';
     // client
     if (error.error instanceof ErrorEvent) errMsg = error.error.message;
     // server
     else errMsg = `Error Code: ${error.status}\nMessage: ${error.message}`;
-    this.toast.error(errMsg);
-    return throwError(error);
+    return throwError(errMsg);
   }
 }

@@ -3,7 +3,7 @@
 }
 
 .dialog-container {
-  max-width: 90% !important;
+  // max-width: 90% !important;
   min-width: 300px;
   max-height: 90%;
 
@@ -21,8 +21,8 @@
       padding: 0.8rem 1.5rem;
       border-bottom: 1px solid $grey-02;
 
-      p {
-        font-size: 1.8rem;
+      h1 {
+        font-size: 1.6rem;
       }
     }
 
@@ -31,6 +31,7 @@
       flex-direction: column;
       overflow-y: auto;
       max-height: 70vh;
+      max-width: 600px;
       background-color: $grey-03;
       padding: 2rem 1.5rem;
 

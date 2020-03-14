@@ -2,26 +2,28 @@
   <h1>{{ data.user.first + ' ' + data.user.last + ' ' + data.amount.value + ' ' + data.amount.currency }}</h1>
 </div>
 
-<div class="dialog__body">
-  <p class="dialog__intro">Here you can add a receipt to the expense.</p>
-  <div class="input__container">
-    <label for="receiptUpload">Receipt: </label>
-    <input name="receiptUpload" #imageInput type="file" (change)="processReceipt(imageInput)" />
+<form #imageForm="ngForm">
+  <div class="dialog__body">
+    <p class="dialog__intro">Here you can add a receipt to the expense.</p>
+    <div class="input__container">
+      <label for="receiptUpload">Receipt: </label>
+      <input name="receiptUpload" #imageInput type="file" required (change)="processReceipt(imageInput)" />
+    </div>
+    <div class="preview__container">
+      <img [src]="imageURL" *ngIf="imageURL !== ''" alt="Preview Image" />
+    </div>
+    <!-- Progress Bar -->
+    <div class="progress" *ngIf="progress > 0">
+      <div class="progress-bar" role="progressbar" [style.width.%]="progress"></div>
+    </div>
   </div>
-  <div class="preview__container">
-    <img [src]="imageURL" *ngIf="imageURL !== ''" alt="Preview Image" />
-  </div>
-  <!-- Progress Bar -->
-  <div class="progress" *ngIf="progress > 0">
-    <div class="progress-bar" role="progressbar" [style.width.%]="progress"></div>
-  </div>
-</div>
 
-<div class="dialog__footer">
-  <button class="button main" (click)="uploadReceipt(imageInput)">
-    <span>Apply</span>
-  </button>
-  <button class="button" (click)="close()">
-    <span>Cancel</span>
-  </button>
-</div>
+  <div class="dialog__footer">
+    <button type="submit" class="button main" (click)="uploadReceipt(imageInput)" [disabled]="!imageURL">
+      <span>Apply</span>
+    </button>
+    <button class="button" (click)="close()">
+      <span>Cancel</span>
+    </button>
+  </div>
+</form>

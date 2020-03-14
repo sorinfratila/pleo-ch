@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { Expense } from 'src/app/models/Expense';
 
 @Component({
   selector: 'app-add-image',
@@ -23,8 +24,8 @@ export class AddImageComponent {
     this.progress = 0;
   }
 
-  close() {
-    this.dialogRef.close('some value');
+  close(res: Expense) {
+    this.dialogRef.close(res);
   }
 
   processReceipt(receipt: any) {
@@ -38,21 +39,24 @@ export class AddImageComponent {
   }
 
   uploadReceipt(receipt: any) {
-    // const file = receipt.files[0];
-    this.expenseService.uploadReceipt(receipt, this.data.id).subscribe((event: HttpEvent<any>) => {
-      console.log(event);
-
-      switch (event.type) {
-        case HttpEventType.UploadProgress: {
-          this.progress = Math.round((event.loaded / event.total) * 100);
-          break;
+    const file = receipt.files[0];
+    this.expenseService.uploadReceipt(file, this.data.id).subscribe({
+      next: (event: HttpEvent<any>) => {
+        switch (event.type) {
+          case HttpEventType.Response: {
+            this.toast.success('Receipt uploaded!');
+            setTimeout(() => {
+              this.close(event.body);
+            }, 150);
+            break;
+          }
+          case HttpEventType.UploadProgress: {
+            this.progress = Math.round((event.loaded / event.total) * 100);
+            break;
+          }
         }
-        case HttpEventType.Response: {
-          this.toast.success('Receipt uploaded!');
-          this.close();
-          break;
-        }
-      }
+      },
+      error: errorMsg => this.toast.error(errorMsg),
     });
   }
 }

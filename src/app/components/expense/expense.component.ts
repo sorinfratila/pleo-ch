@@ -36,8 +36,11 @@ export class ExpenseComponent implements OnInit {
       data: this.expense,
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      console.log('add image dialog closed:', res);
+    dialogRef.afterClosed().subscribe((res: Expense) => {
+      this.expense = {
+        ...this.expense,
+        ...res,
+      };
     });
   };
 
@@ -46,14 +49,22 @@ export class ExpenseComponent implements OnInit {
    */
   onAddComment = (ev: any) => {
     ev.stopPropagation();
+    const newExpense = {
+      ...this.expense,
+      isOpen: true,
+    };
+
     const dialogRef = this.dialog.open(AddCommentDialogComponent, {
       panelClass: 'dialog-container',
       backdropClass: 'backdrop-container',
-      data: this.expense,
+      data: newExpense,
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      console.log('add comment dialog closed:', res);
+    dialogRef.afterClosed().subscribe((res: Expense) => {
+      this.expense = {
+        ...this.expense,
+        ...res,
+      };
     });
   };
 }

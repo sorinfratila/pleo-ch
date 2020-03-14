@@ -1,23 +1,38 @@
-<section class="accordion__body" [ngClass]="{ opened: isOpen }">
+<section class="accordion__body" [ngClass]="{ opened: expense.isOpen }">
   <table>
-    <col class="col_one">
-    <col class="col_two">
+    <colgroup>
+      <col class="col_one" />
+      <col class="col_two" />
+    </colgroup>
     <tbody>
       <tr>
         <td><label>Date</label></td>
-        <td><p>{{ expense.date | date:'DD:MM:YY' }}</p></td>
+        <td>
+          <p>{{ expense.date | date: 'dd:MM:y' }}</p>
+        </td>
       </tr>
       <tr>
         <td><label>Merchant</label></td>
-        <td><p>{{ expense.merchant }}</p></td>
+        <td>
+          <p>{{ expense.merchant }}</p>
+        </td>
       </tr>
       <tr>
         <td><label>Comment</label></td>
-        <td><p>{{ expense.comment }}</p></td>
+        <td>
+          <p>{{ expense.comment }}</p>
+        </td>
       </tr>
+      <tr *ngIf="showReceipts">
+        <td><label>Receipts</label></td>
+        <td></td>
+      </tr>
+      <tr></tr>
       <tr>
         <td><label>Category</label></td>
-        <td><p>{{ expense.category }}</p></td>
+        <td>
+          <p>{{ expense.category }}</p>
+        </td>
       </tr>
     </tbody>
   </table>
