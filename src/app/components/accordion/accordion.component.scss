@@ -9,7 +9,7 @@
 
   &.opened {
     opacity: 1;
-    max-height: 1000px; // just a max number to make sure it can contain all the data
+    max-height: 1350px; // just a max number to make sure it can contain all the data
   }
 
   table {
@@ -55,6 +55,7 @@
         td {
           overflow: hidden;
           height: 3rem;
+          color: $white-text;
           font-size: 1.2rem;
           font-weight: 400;
           padding: 0 0.8rem;

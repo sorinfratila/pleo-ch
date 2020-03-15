@@ -33,8 +33,6 @@ export class ExpensesService {
 
   public getExpenses(obj?: any): Observable<any> {
     const link = obj ? `?limit=${obj.limit}&offset=${obj.offset}` : '';
-
-    console.log('link', link);
     return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
   }
 

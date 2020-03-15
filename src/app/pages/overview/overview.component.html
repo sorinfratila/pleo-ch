@@ -1,20 +1,69 @@
 <main>
-  <div class="container">
+  <div class="wrapper">
     <section class="header">
       <!-- contains some control buttons and text-->
-      <h1>Welcome to your expenses page</h1>
-      <p>
-        Here you can see you expense list by clicking the button bellow and you can further filter your expenses.
-      </p>
+      <section class="filters" *ngIf="totalEntries">
+        <app-filter (filterChange)="onFilterChange($event)" [totalEntries]="totalEntries"></app-filter>
+      </section>
     </section>
-    <section class="filters">
-      <app-filter (filterChange)="onFilterChange($event)" (directionChange)="onDirectionChange($event)"></app-filter>
-    </section>
-    <section class="list">
-      <!-- container for the list of expenses with each row being an expense -->
-      <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
-    </section>
+    <div class="container">
+      <section class="list" *ngIf="innerWidth < 1300; else table">
+        <!-- container for the list of expenses with each row being an expense -->
+        <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
+      </section>
+      <ng-template #table>
+        <section class="table__container">
+          <div class="table">
+            <div class="table__header">
+              <div class="table__header__section" *ngFor="let column of tableColumns">
+                <div class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
+                  <p>{{ column.name }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="table__body">
+              <div class="table__row" *ngFor="let row of expenses">
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[0].width + 'px' }">
+                  <span>{{ row.user.first }}</span>
+                </div>
 
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[1].width + 'px' }">
+                  <span>{{ row.user.last }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[2].width + 'px' }">
+                  <span>{{ row.date | date: 'dd  MMM  y' }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[3].width + 'px' }">
+                  <span>{{ row.amount.value }}</span>
+                </div>
+
+                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[4].width + 'px' }">
+                  <span>{{ row.amount.currency }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[5].width + 'px' }">
+                  <span>{{ row.merchant }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[6].width + 'px' }">
+                  <span>RECEIPTS</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[7].width + 'px' }">
+                  <span>{{ row.comment }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[8].width + 'px' }">
+                  <span>{{ row.category }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ng-template>
+    </div>
     <section class="footer">
       <app-pagination [nrOfPages]="nrOfPages" (pageChange)="onPageChange($event)"></app-pagination>
     </section>

@@ -1,9 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ExpensesService } from 'src/app/services/expenses.service';
-import { DIRECTION } from 'src/app/components/filter/filter.component';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -14,18 +13,38 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class OverviewComponent implements OnInit, OnDestroy {
   expenses$: Subscription;
+  unsubscribeExpense = new Subject<any>();
+  unsubscribeFiltered = new Subject<any>();
   filteredExpenses$: Subscription;
   expenses: Expense[] = [];
   totalEntries: number;
   nrOfPages: any;
-  direction: DIRECTION;
   filter: string;
+  innerWidth: number;
+  tableColumns: any[];
 
   constructor(private expensesService: ExpensesService, private toast: ToastrService, private CDR: ChangeDetectorRef) {
+    this.innerWidth = window.innerWidth;
     this.totalEntries = 0;
     this.nrOfPages = { amount: 0 };
-    this.direction = 'ASC';
     this.filter = 'default';
+    this.tableColumns = [
+      { value: 'first', name: 'First Name', width: 100 },
+      { value: 'last', name: 'Last Name', width: 100 },
+      { value: 'date', name: 'Date', width: 100 },
+      { value: 'value', name: 'Value', width: 80 },
+      { value: 'currency', name: 'Currency', width: 60 },
+      { value: 'merchant', name: 'Merchant', width: 100 },
+      { value: 'receipts', name: 'Receipts', width: 100 },
+      { value: 'comment', name: 'Comment', width: 100 },
+      { value: 'category', name: 'Category', width: 100 },
+    ];
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.innerWidth = event.target.innerWidth;
+    console.log(this.innerWidth);
   }
 
   ngOnInit(): void {
@@ -34,58 +53,84 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.expenses$) this.expenses$.unsubscribe();
+    if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
   }
 
+  /**
+   *
+   * @param obj contains the limit and offset values for pagination
+   */
   private subscribeToExpenses(obj?: any) {
-    this.expenses$ = this.expensesService.getExpenses(obj).subscribe({
-      next: (result: any) => {
-        console.log(result);
+    this.expenses$ = this.expensesService
+      .getExpenses(obj)
+      .pipe(takeUntil(this.unsubscribeExpense))
+      .subscribe({
+        next: (result: any) => {
+          const { total, expenses } = result;
+          this.totalEntries = total;
+          this.nrOfPages = { amount: total };
+          this.expenses = this.appendProp(expenses);
 
-        const { total, expenses } = result;
-        this.totalEntries = total;
-        this.nrOfPages = { amount: total };
-        this.expenses = this.appendProp(expenses);
-        this.CDR.detectChanges();
-      },
-      error: err => this.toast.error(err),
-    });
+          this.CDR.detectChanges();
+        },
+        error: err => this.toast.error(err),
+      });
   }
 
+  // add isOpen prop to the expenses for accordion control
   private appendProp = (list: Expense[]) => {
     return list.map((exp: Expense) => {
       return { ...exp, isOpen: false };
     });
   };
 
-  public onFilterChange = (filter: string) => {
+  public onFilterChange = (obj: any) => {
+    const { filter, selectedProp } = obj;
     this.filter = filter;
     if (filter !== 'default') {
-      this.expenses$.unsubscribe();
-      this.filteredExpenses$ = this.expensesService.getAllExpenses({ limit: this.totalEntries }).subscribe({
-        next: res => {
-          const { total, expenses } = res;
-          this.totalEntries = total;
-          this.expenses = expenses.filter((ex: Expense) => ex.amount.currency === filter);
-          this.nrOfPages = { amount: this.expenses.length };
+      this.unsubscribeExpense.next();
+      this.unsubscribeExpense.complete();
+      this.filteredExpenses$ = this.expensesService
+        .getAllExpenses({ limit: this.totalEntries })
+        .pipe(takeUntil(this.unsubscribeFiltered))
+        .subscribe({
+          next: res => {
+            const { total, expenses } = res;
+            this.totalEntries = total;
 
-          this.CDR.detectChanges();
-        },
-        error: err => this.toast.error(err),
-      });
+            // filtering by CURRENCY
+            if (selectedProp === 'currency') {
+              this.expenses = expenses.filter((ex: Expense) => ex.amount.currency === filter);
+            }
+
+            // filtering by DATE
+            if (selectedProp === 'date') {
+              this.expenses = expenses.filter((ex: Expense) => {
+                const year = new Date(ex.date).getFullYear();
+                return year === Number(filter);
+              });
+            }
+
+            this.nrOfPages = { amount: 1 }; // if filtering, set page to 1 => showing all result on one page
+            this.CDR.detectChanges();
+          },
+          error: err => this.toast.error(err),
+        });
     } else {
-      this.filteredExpenses$.unsubscribe();
+      // if default filter, show normal results with pagination
+      this.unsubscribeFiltered.next();
+      this.unsubscribeFiltered.complete();
       this.subscribeToExpenses();
     }
   };
 
-  public onDirectionChange = (direction: DIRECTION) => {
-    console.log('direction', direction);
-    this.direction = direction;
-  };
-
   public onPageChange = (pageNumber: number) => {
-    if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
-    const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
-    this.subscribeToExpenses(obj);
+    if (this.filter === 'default') {
+      // only update when no filter is applied
+      // currently only one page for the filtered entries
+      if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
+      const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
+      this.subscribeToExpenses(obj);
+    }
   };
 }

@@ -1,19 +1,14 @@
 <section>
   <div class="select__container">
-    <label for="filter">Filter: </label>
-    <select name="filter" class="select" (change)="onSelectionChange($event)">
-      <option class="option" [value]="filter.value" *ngFor="let filter of filters">{{ filter.name }}</option>
+    <label for="property">Filter: </label>
+    <select name="property" class="select" (change)="onPropertyChange($event)">
+      <option class="option" [value]="prop.value" *ngFor="let prop of properties">{{ prop.name }}</option>
     </select>
   </div>
-  <div class="direction">
-    <label for="filter">Direction: </label>
-    <div class="arrow__container pointer" *ngIf="direction === 'DESC'; else asc" (click)="toggleDirection()">
-      <i class="material-icons">arrow_drop_down</i>
-    </div>
-    <ng-template #asc>
-      <div class="arrow__container pointer" (click)="toggleDirection()">
-        <i class="material-icons">arrow_drop_up</i>
-      </div>
-    </ng-template>
+  <div class="select__container" *ngIf="filterArray.length">
+    <label for="filter">By: </label>
+    <select name="filter" class="select" (change)="onFilterChange($event)">
+      <option class="option" [value]="filter.value" *ngFor="let filter of filterArray">{{ filter.name }}</option>
+    </select>
   </div>
 </section>

@@ -4,7 +4,9 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 100%;
+  margin-top: 1rem;
+  width: 100%;
+
   .pages {
     display: flex;
     align-items: center;
@@ -16,9 +18,14 @@ section {
       font-size: 1.6rem;
       font-weight: 700;
       border-radius: 20rem;
+      background-color: transparent;
+      transition: all 1s ease-in;
+      -webkit-transition: all 1s ease-in-out;
 
       &.selected {
-        background-color: $blue-01;
+        background-color: $white-text;
+        transition: all 1s ease-out;
+        -webkit-transition: all 1s ease-in-out;
       }
     }
   }

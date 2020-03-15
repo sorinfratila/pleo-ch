@@ -20,7 +20,7 @@ export class AddCommentDialogComponent implements AfterViewInit {
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
   ) {
-    this.comment = '';
+    this.comment = data.comment;
   }
 
   ngAfterViewInit(): void {
