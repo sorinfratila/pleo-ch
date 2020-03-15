@@ -1,27 +1,33 @@
+@import '../styles/helpers.scss';
+
 .table {
   display: flex;
   flex-direction: column;
   overflow-x: auto;
+  border-radius: 0.5rem;
 
   .table__header {
     display: flex;
+    font-weight: 700;
     align-items: center;
+    letter-spacing: 1px;
     min-width: fit-content;
     background-color: $grey-03;
     padding: 1rem 0 1rem 1rem;
-    border-bottom: 1px solid $grey-02;
+    border-bottom: 1px solid $black-02;
 
     .table__header__section {
       display: flex;
       align-items: center;
       min-width: fit-content;
+      margin-right: 0.2rem;
 
       &.center {
         justify-content: center;
       }
 
       p {
-        color: $black-01;
+        color: $white-text;
         font-size: 1.2rem;
       }
 
@@ -34,54 +40,50 @@
 
   .table__body {
     overflow-x: hidden;
-    max-height: calc(100vh - 89px);
+    max-height: calc(
+      100vh - 145px
+    ); // accounting here for all the other heights involved in the total view of the screen
     overflow-y: auto;
-    min-width: fit-content;
+    background-color: $white-text;
 
     .table__row {
       display: flex;
+      color: $black-02;
       min-height: 4rem;
+      max-height: 4rem;
       padding: 0 1rem;
-      background-color: $grey-03;
-      border-bottom: 1px solid $grey-02;
-      border: 1px solid transparent;
+      border-bottom: 1px solid $black-02;
+
+      .table__row__section {
+        max-width: 100px;
+        margin-right: 0.2rem;
+
+        span {
+          @extend .truncate;
+        }
+
+        &.center {
+          display: flex;
+          justify-content: center;
+        }
+
+        .receipts__wrapper {
+          overflow: auto;
+          display: flex;
+        }
+      }
 
       &:last-child {
         border-bottom: none;
-      }
-
-      &.disabled {
-        pointer-events: none;
-        background-color: $grey-03;
-        opacity: 0.6;
       }
 
       .table__row__section {
         display: flex;
         align-items: center;
 
-        &.center {
-          justify-content: center;
-        }
-
-        &.text__right {
-          justify-content: flex-end;
-        }
-
         span {
           font-size: 1.4rem;
         }
-
-        .label {
-          padding: 0 1.2rem 0 0;
-          font-size: 1.2rem;
-          color: $grey-03;
-        }
-      }
-
-      &.disabled:not(.active) {
-        background-color: $grey-03;
-        opacity: 0.6;
       }
     }
   }

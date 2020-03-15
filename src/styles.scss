@@ -8,6 +8,7 @@
 @import './styles/button.scss';
 @import './styles/select.scss';
 @import './styles/table.scss';
+@import './styles/helpers.scss';
 
 * {
   box-sizing: border-box;
@@ -25,12 +26,7 @@ html {
 body {
   color: $black-02;
   background-color: $anthra-02;
-  // background-color: $color3;
   font-size: 1.2rem;
-}
-
-.pointer {
-  cursor: pointer;
 }
 
 .material-icons {
@@ -39,4 +35,8 @@ body {
   &.small {
     font-size: 20px;
   }
+}
+
+.pointer {
+  cursor: pointer;
 }

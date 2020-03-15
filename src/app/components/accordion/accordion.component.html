@@ -27,7 +27,7 @@
         <td><label>Receipts</label></td>
         <td class="receipts">
           <div class="container">
-            <app-thumbnail *ngFor="let receipt of expense.receipts" [src]="baseURL + receipt.url"></app-thumbnail>
+            <app-thumbnail *ngFor="let receipt of expense.receipts" [src]="receipt.url"></app-thumbnail>
           </div>
         </td>
       </tr>

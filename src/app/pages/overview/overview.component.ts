@@ -4,6 +4,9 @@ import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { ToastrService } from 'ngx-toastr';
+import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
 
 @Component({
   selector: 'app-overview',
@@ -23,21 +26,28 @@ export class OverviewComponent implements OnInit, OnDestroy {
   innerWidth: number;
   tableColumns: any[];
 
-  constructor(private expensesService: ExpensesService, private toast: ToastrService, private CDR: ChangeDetectorRef) {
+  constructor(
+    private dialog: MatDialog,
+    private expensesService: ExpensesService,
+    private toast: ToastrService,
+    private CDR: ChangeDetectorRef,
+  ) {
     this.innerWidth = window.innerWidth;
     this.totalEntries = 0;
     this.nrOfPages = { amount: 0 };
     this.filter = 'default';
     this.tableColumns = [
-      { value: 'first', name: 'First Name', width: 100 },
+      { value: 'first', name: 'First Name', width: 90 },
       { value: 'last', name: 'Last Name', width: 100 },
-      { value: 'date', name: 'Date', width: 100 },
+      { value: 'date', name: 'Date', width: 85 },
       { value: 'value', name: 'Value', width: 80 },
-      { value: 'currency', name: 'Currency', width: 60 },
+      { value: 'currency', name: 'Currency', width: 70 },
       { value: 'merchant', name: 'Merchant', width: 100 },
       { value: 'receipts', name: 'Receipts', width: 100 },
       { value: 'comment', name: 'Comment', width: 100 },
-      { value: 'category', name: 'Category', width: 100 },
+      { value: 'category', name: 'Category', width: 60 },
+      { value: 'addReceipt', name: null, width: 50 },
+      { value: 'addComment', name: null, width: 50 },
     ];
   }
 
@@ -128,9 +138,64 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (this.filter === 'default') {
       // only update when no filter is applied
       // currently only one page for the filtered entries
-      if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
+      // if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
+      this.unsubscribeFiltered.next();
+      this.unsubscribeFiltered.complete();
       const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
       this.subscribeToExpenses(obj);
     }
+  };
+
+  onAddComment = (index: number, ev?: any) => {
+    let isopen = false;
+    if (ev) {
+      const { ev: event, isOpen } = ev;
+      event.stopPropagation();
+      isopen = isOpen;
+    }
+
+    const expense = this.expenses[index];
+
+    const dialogRef = this.dialog.open(AddCommentDialogComponent, {
+      panelClass: 'dialog-container',
+      backdropClass: 'backdrop-container',
+      data: expense,
+    });
+
+    dialogRef.afterClosed().subscribe((res?: Expense) => {
+      if (res) {
+        res.isOpen = isopen;
+        const expensesCopy = [...this.expenses];
+        expensesCopy.splice(index, 1, res);
+        this.expenses = expensesCopy;
+        this.CDR.detectChanges();
+      }
+    });
+  };
+
+  onAddReceipt = (index: number, ev?: any) => {
+    let isopen = false;
+    if (ev) {
+      const { ev: event, isOpen } = ev;
+      event.stopPropagation();
+      isopen = isOpen;
+    }
+
+    const expense = this.expenses[index];
+    const dialogRef = this.dialog.open(AddImageComponent, {
+      panelClass: 'dialog-container',
+      backdropClass: 'backdrop-container',
+      data: expense,
+    });
+
+    dialogRef.afterClosed().subscribe((res?: Expense) => {
+      if (res) {
+        res.isOpen = isopen;
+        const expensesCopy = [...this.expenses];
+        expensesCopy.splice(index, 1, res);
+        this.expenses = expensesCopy;
+        this.CDR.detectChanges();
+      }
+    });
   };
 }

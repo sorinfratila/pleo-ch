@@ -7,22 +7,27 @@
       </section>
     </section>
     <div class="container">
-      <section class="list" *ngIf="innerWidth < 1300; else table">
+      <section class="list" *ngIf="innerWidth < 1400; else table">
         <!-- container for the list of expenses with each row being an expense -->
-        <app-expense *ngFor="let expense of expenses" [expense]="expense"></app-expense>
+        <app-expense
+          *ngFor="let expense of expenses; let j = index"
+          [expense]="expense"
+          (addReceipt)="onAddReceipt(j, $event)"
+          (addComment)="onAddComment(j, $event)"
+        ></app-expense>
       </section>
       <ng-template #table>
         <section class="table__container">
           <div class="table">
             <div class="table__header">
               <div class="table__header__section" *ngFor="let column of tableColumns">
-                <div class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
+                <div *ngIf="column.name" class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
                   <p>{{ column.name }}</p>
                 </div>
               </div>
             </div>
             <div class="table__body">
-              <div class="table__row" *ngFor="let row of expenses">
+              <div class="table__row" *ngFor="let row of expenses; let i = index">
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[0].width + 'px' }">
                   <span>{{ row.user.first }}</span>
                 </div>
@@ -32,14 +37,14 @@
                 </div>
 
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[2].width + 'px' }">
-                  <span>{{ row.date | date: 'dd  MMM  y' }}</span>
+                  <span>{{ row.date | date: 'dd-MM-y' }}</span>
                 </div>
 
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[3].width + 'px' }">
                   <span>{{ row.amount.value }}</span>
                 </div>
 
-                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[4].width + 'px' }">
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[4].width + 'px' }">
                   <span>{{ row.amount.currency }}</span>
                 </div>
 
@@ -48,15 +53,33 @@
                 </div>
 
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[6].width + 'px' }">
-                  <span>RECEIPTS</span>
+                  <div class="receipts__wrapper">
+                    <app-thumbnail
+                      *ngFor="let receipt of row.receipts"
+                      [src]="receipt.url"
+                      [isSmall]="true"
+                    ></app-thumbnail>
+                  </div>
                 </div>
 
-                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[7].width + 'px' }">
+                <div
+                  matTooltip="{{ row.comment }}"
+                  class="table__row__section"
+                  [ngStyle]="{ 'min-width': tableColumns[7].width + 'px' }"
+                >
                   <span>{{ row.comment }}</span>
                 </div>
 
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[8].width + 'px' }">
                   <span>{{ row.category }}</span>
+                </div>
+
+                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[9].width + 'px' }">
+                  <a (click)="onAddReceipt(i)" class="pointer"><i class="material-icons">add_photo_alternate</i></a>
+                </div>
+
+                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[10].width + 'px' }">
+                  <a (click)="onAddComment(i)" class="pointer"><i class="material-icons">add_comment</i></a>
                 </div>
               </div>
             </div>
@@ -64,8 +87,6 @@
         </section>
       </ng-template>
     </div>
-    <section class="footer">
-      <app-pagination [nrOfPages]="nrOfPages" (pageChange)="onPageChange($event)"></app-pagination>
-    </section>
+    <app-pagination [nrOfPages]="nrOfPages" (pageChange)="onPageChange($event)"></app-pagination>
   </div>
 </main>

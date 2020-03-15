@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-thumbnail',
@@ -7,8 +8,12 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class ThumbnailComponent implements OnInit {
   @Input() src: string;
+  @Input() isSmall?: boolean;
+  newSrc: string;
 
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.newSrc = environment.rootURL + this.src;
+  }
 }

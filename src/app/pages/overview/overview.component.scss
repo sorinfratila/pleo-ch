@@ -19,8 +19,8 @@ main {
       width: 100%;
     }
 
-    @media screen and (min-width: 1300px) {
-      width: 80%;
+    @media screen and (min-width: 1400px) {
+      width: 70%;
     }
 
     .header {
@@ -47,31 +47,28 @@ main {
 
     .container {
       width: 100%;
-      overflow-y: hidden;
-      display: flex;
-      // flex: 1;
-      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      padding: 1rem 1.5rem;
       position: relative;
 
       @media screen and (max-width: 580px) {
         padding: 0.5rem 1rem;
       }
 
+      @media screen and (min-width: 1400px) {
+        overflow-y: hidden;
+      }
+
       .list {
         width: 100%;
+        overflow-y: auto;
       }
 
       .table__container {
         width: 100%;
-        // overflow: hidden;
-        height: 100vh;
-        position: relative;
-        // height: 100%;
+        overflow: hidden;
+        // position: relative;
       }
-    }
-    .footer {
-      width: 100%;
-      padding-bottom: 0.5rem;
     }
   }
 }

@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export const imports = [
   BrowserModule,
@@ -14,4 +15,5 @@ export const imports = [
   MatDialogModule,
   ToastrModule.forRoot(),
   FormsModule,
+  MatTooltipModule,
 ];
