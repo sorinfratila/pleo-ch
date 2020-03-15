@@ -1,5 +1,5 @@
 <main>
-  <div class="wrapper">
+  <div class="wrapper" *ngIf="this.expenses.length; else empty">
     <section class="header">
       <!-- contains some control buttons and text-->
       <section class="filters" *ngIf="totalEntries">
@@ -87,6 +87,16 @@
         </section>
       </ng-template>
     </div>
-    <app-pagination [nrOfPages]="nrOfPages" (pageChange)="onPageChange($event)"></app-pagination>
+    <app-pagination
+      *ngIf="nrOfPages.amount"
+      [nrOfPages]="nrOfPages"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
   </div>
+  <ng-template #empty>
+    <div class="wrapper empty">
+      <h1>Empty list or the API is not running</h1>
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+  </ng-template>
 </main>

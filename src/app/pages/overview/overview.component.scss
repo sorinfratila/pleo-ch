@@ -15,6 +15,10 @@ main {
     overflow: hidden;
     background-color: $blue-01;
 
+    &.empty {
+      justify-content: center;
+    }
+
     @media screen and (max-width: 580px) {
       width: 100%;
     }

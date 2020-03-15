@@ -7,6 +7,7 @@ import {
   ChangeDetectorRef,
   Output,
   EventEmitter,
+  OnInit,
 } from '@angular/core';
 
 @Component({
@@ -15,7 +16,7 @@ import {
   styleUrls: ['./pagination.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginationComponent implements OnChanges {
+export class PaginationComponent implements OnChanges, OnInit {
   @Input() nrOfPages: any;
   @Output() pageChange = new EventEmitter<any>();
   pages: any[];
@@ -23,12 +24,16 @@ export class PaginationComponent implements OnChanges {
     this.pages = [{ num: 1, selected: true }];
   }
 
+  ngOnInit(): void {
+    this.CDR.detectChanges();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
       const {
-        nrOfPages: { currentValue, previousValue },
+        nrOfPages: { currentValue },
       } = changes;
-      if (previousValue && currentValue && currentValue.amount !== previousValue.amount) {
+      if (currentValue) {
         // updating the pages array to have the correct amount of pages
         const selectedPage = this.pages.find(p => p.selected);
         this.pages = this.getPages(currentValue.amount);
@@ -49,14 +54,6 @@ export class PaginationComponent implements OnChanges {
     }
     return pages;
   };
-
-  // public nextPage = (): void => {
-  //   console.log('next page');
-  // };
-
-  // public prevPage = (): void => {
-  //   console.log('prev page');
-  // };
 
   /**
    * change selected page and emit the page number for updates in overview

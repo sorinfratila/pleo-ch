@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export const imports = [
   BrowserModule,
@@ -16,4 +17,5 @@ export const imports = [
   ToastrModule.forRoot(),
   FormsModule,
   MatTooltipModule,
+  MatProgressSpinnerModule,
 ];

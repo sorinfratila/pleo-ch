@@ -40,3 +40,16 @@ body {
 .pointer {
   cursor: pointer;
 }
+
+// mat spinner color
+.mat-progress-spinner circle,
+.mat-spinner circle {
+  stroke: $color5;
+}
+
+.loader-spinner {
+  mat-dialog-container {
+    box-shadow: none !important;
+    background: none !important;
+  }
+}
