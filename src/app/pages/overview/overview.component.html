@@ -1,7 +1,15 @@
 <main>
   <div class="wrapper" *ngIf="this.expenses.length; else empty">
     <section class="header">
-      <!-- contains some control buttons and text-->
+      <!-- contains some controls -->
+      <div class="lang">
+        <div class="select__container">
+          <label for="language">Lang: </label>
+          <select name="language" class="select" (change)="onLanguageChange($event)">
+            <option class="option" [value]="lang.value" *ngFor="let lang of langs">{{ lang.name }}</option>
+          </select>
+        </div>
+      </div>
       <section class="filters" *ngIf="totalEntries">
         <app-filter (filterChange)="onFilterChange($event)" [totalEntries]="totalEntries"></app-filter>
       </section>
@@ -17,8 +25,11 @@
         ></app-expense>
       </section>
       <ng-template #table>
+        <!-- the table to show when the screen is big enough -->
         <section class="table__container">
+          <!-- /TABLE -->
           <div class="table">
+            <!-- TABLE HEADER -->
             <div class="table__header">
               <div class="table__header__section" *ngFor="let column of tableColumns">
                 <div *ngIf="column.name" class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
@@ -26,6 +37,9 @@
                 </div>
               </div>
             </div>
+            <!-- /TABLE HEADER -->
+
+            <!-- TABLE BODY -->
             <div class="table__body">
               <div class="table__row" *ngFor="let row of expenses; let i = index">
                 <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[0].width + 'px' }">
@@ -83,19 +97,23 @@
                 </div>
               </div>
             </div>
+            <!-- TABLE BODY -->
           </div>
+          <!-- /TABLE -->
         </section>
       </ng-template>
     </div>
+    <!-- app footer containing the pages/pagination module -->
     <app-pagination
       *ngIf="nrOfPages.amount"
       [nrOfPages]="nrOfPages"
       (pageChange)="onPageChange($event)"
     ></app-pagination>
   </div>
+  <!-- if the api is not running or the  -->
   <ng-template #empty>
     <div class="wrapper empty">
-      <h1>There are no expenses, yet.</h1>
+      <h1>Expenses list is empty, is the API running ?</h1>
       <mat-spinner [diameter]="40"></mat-spinner>
     </div>
   </ng-template>

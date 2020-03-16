@@ -1,15 +1,15 @@
-export class Expense {
-  public id: string;
-  public amount: {
+export interface Expense {
+  id: string;
+  amount: {
     value: string;
     currency: Currency;
   };
-  public date: Date;
-  public merchant: string;
-  public receipts: string[];
-  public comment: string;
-  public category: string;
-  public user: {
+  date: Date;
+  merchant: string;
+  receipts: any[];
+  comment: string;
+  category: string;
+  user: {
     first: string;
     last: string;
     email: string;

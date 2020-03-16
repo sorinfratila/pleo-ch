@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, throwError } from 'rxjs';
-import { Expense } from '../models/Expense';
 import { catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
@@ -11,24 +10,9 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ExpensesService {
   baseURL: string;
-  private expenseList: Expense[] = [];
-  // private expensesUpdates = new BehaviorSubject<Expense[]>([]);
 
   constructor(private http: HttpClient, private toast: ToastrService) {
     this.baseURL = environment.rootURL;
-  }
-
-  // public getExpensesUpdates(): Observable<Expense[]> {
-  //   return this.expensesUpdates.asObservable();
-  // }
-
-  public getExpenseList(): Expense[] {
-    return this.expenseList;
-  }
-
-  public setExpenseList(newExpenseList: Expense[]): void {
-    this.expenseList = newExpenseList;
-    // this.expensesUpdates.next(newExpenseList);
   }
 
   public getExpenses(obj?: any): Observable<any> {

@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
+import { TranslationService } from 'src/app/services/translation.service';
 
 @Component({
   selector: 'app-overview',
@@ -25,17 +26,23 @@ export class OverviewComponent implements OnInit, OnDestroy {
   filter: string;
   innerWidth: number;
   tableColumns: any[];
+  langs: any[];
 
   constructor(
     private dialog: MatDialog,
     private expensesService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
+    private transService: TranslationService,
   ) {
     this.innerWidth = window.innerWidth;
     this.totalEntries = 0;
     this.nrOfPages = { amount: 0 };
     this.filter = 'default';
+    this.langs = [
+      { value: 'en', name: 'EN' },
+      { value: 'ro', name: 'RO' },
+    ];
     this.tableColumns = [
       { value: 'first', name: 'First Name', width: 90 },
       { value: 'last', name: 'Last Name', width: 100 },
@@ -57,13 +64,32 @@ export class OverviewComponent implements OnInit, OnDestroy {
     console.log(this.innerWidth);
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.subscribeToExpenses();
+    this.getLanguage();
+    // const data = await this.getLanguage();
+    // console.log('data', data);
   }
 
   ngOnDestroy(): void {
     if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
     if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
+  }
+
+  // public setLanguage() {
+  //   const browserlang = this.translateService.getBrowserLang();
+  //   if (this.langs.indexOf(browserlang) > -1) {
+  //     this.translateService.setDefaultLang(browserlang);
+  //   } else this.translateService.setDefaultLang('en');
+  // }
+
+  public async getLanguage(lang: string = 'en') {
+    try {
+      const data = await this.transService.getLanguageJSON(lang);
+      console.log('', data);
+    } catch (e) {
+      this.toast.error(e);
+    }
   }
 
   /**
@@ -129,7 +155,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
     } else {
       // if default filter, show normal results with pagination
       this.unsubscribeFiltered.next();
-      // this.unsubscribeFiltered.complete();
       this.subscribeToExpenses();
     }
   };
@@ -138,9 +163,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (this.filter === 'default') {
       // only update when no filter is applied
       // currently only one page for the filtered entries
-      // if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
       this.unsubscribeFiltered.next();
-      this.unsubscribeFiltered.complete();
       const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
       this.subscribeToExpenses(obj);
     }
@@ -197,5 +220,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
         this.CDR.detectChanges();
       }
     });
+  };
+
+  public onLanguageChange = (event: any) => {
+    const {
+      target: { value },
+    } = event;
+
+    console.log('', value);
   };
 }

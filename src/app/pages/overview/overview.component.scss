@@ -29,20 +29,10 @@ main {
 
     .header {
       width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       padding: 0.5rem 2rem;
-
-      p {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-        padding-right: 2rem;
-        width: 100%;
-      }
-
-      h1 {
-        width: 100%;
-        line-height: 2;
-        padding-right: 2rem;
-      }
 
       @media screen and (max-width: 580px) {
         padding: 0.5rem 1rem;
