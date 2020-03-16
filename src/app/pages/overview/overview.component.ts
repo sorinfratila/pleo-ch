@@ -43,8 +43,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
       { value: 'value', name: 'Value', width: 80 },
       { value: 'currency', name: 'Currency', width: 70 },
       { value: 'merchant', name: 'Merchant', width: 100 },
-      { value: 'receipts', name: 'Receipts', width: 100 },
-      { value: 'comment', name: 'Comment', width: 100 },
+      { value: 'receipts', name: 'Receipts', width: 120 },
+      { value: 'comment', name: 'Comment', width: 120 },
       { value: 'category', name: 'Category', width: 60 },
       { value: 'addReceipt', name: null, width: 50 },
       { value: 'addComment', name: null, width: 50 },
@@ -62,8 +62,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.expenses$) this.expenses$.unsubscribe();
-    if (this.filteredExpenses$) this.filteredExpenses$.unsubscribe();
+    if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
+    if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
   }
 
   /**
@@ -129,7 +129,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     } else {
       // if default filter, show normal results with pagination
       this.unsubscribeFiltered.next();
-      this.unsubscribeFiltered.complete();
+      // this.unsubscribeFiltered.complete();
       this.subscribeToExpenses();
     }
   };

@@ -1,5 +1,5 @@
 .backdrop-container {
-  background: $opaque-01;
+  background-color: $opaque-01;
 }
 
 .dialog-container {
@@ -7,8 +7,11 @@
   min-width: 300px;
   max-height: 90%;
 
+  @media screen and (min-width: 300px) {
+    max-width: 300px;
+  }
+
   mat-dialog-container {
-    background-color: $grey-01;
     box-shadow: none;
     color: $white-text;
     padding: 0;
@@ -19,7 +22,9 @@
       justify-content: flex-start;
       letter-spacing: 1px;
       padding: 0.8rem 1.5rem;
+      color: $white-text;
       border-bottom: 1px solid $grey-02;
+      background-color: $grey-02;
 
       h1 {
         font-size: 1.6rem;
@@ -34,6 +39,10 @@
       max-width: 600px;
       background-color: $grey-03;
       padding: 2rem 1.5rem;
+
+      @media screen and (max-width: 300px) {
+        max-width: 300px;
+      }
 
       section {
         margin: 0.5rem 0 2rem 0;
@@ -51,6 +60,7 @@
       justify-content: flex-end;
       padding: 0.8rem 1.5rem;
       border-top: 1px solid $grey-02;
+      background-color: $grey-02;
 
       button {
         min-width: 75px;

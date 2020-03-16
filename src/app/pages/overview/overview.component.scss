@@ -19,7 +19,7 @@ main {
       justify-content: center;
     }
 
-    @media screen and (max-width: 580px) {
+    @media screen and (max-width: 650px) {
       width: 100%;
     }
 
@@ -51,6 +51,7 @@ main {
 
     .container {
       width: 100%;
+      height: 100%;
       overflow-y: auto;
       padding: 1rem 1.5rem;
       position: relative;
@@ -70,7 +71,11 @@ main {
 
       .table__container {
         width: 100%;
+        max-width: 1020px;
         overflow: hidden;
+        // display: flex;
+        margin: 0 auto;
+        // justify-content: center;
         // position: relative;
       }
     }
