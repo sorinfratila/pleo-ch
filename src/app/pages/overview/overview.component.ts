@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
 import { Subscription, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take, first } from 'rxjs/operators';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { ToastrService } from 'ngx-toastr';
 import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
@@ -71,8 +71,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
-    if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
+    // if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
+    // if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
   }
 
   /**
@@ -82,7 +82,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   private subscribeToExpenses(obj?: any) {
     this.expenses$ = this.expensesService
       .getExpenses(obj)
-      .pipe(takeUntil(this.unsubscribeExpense))
+      .pipe(first())
       .subscribe({
         next: (result: any) => {
           const { total, expenses } = result;
@@ -107,11 +107,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
     const { filter, selectedProp } = obj;
     this.filter = filter;
     if (filter !== 'default') {
-      this.unsubscribeExpense.next();
-      this.unsubscribeExpense.complete();
+      // this.unsubscribeExpense.next();
+      // this.unsubscribeExpense.complete();
       this.filteredExpenses$ = this.expensesService
         .getAllExpenses({ limit: this.totalEntries })
-        .pipe(takeUntil(this.unsubscribeFiltered))
+        .pipe(first())
         .subscribe({
           next: res => {
             const { total, expenses } = res;
@@ -146,7 +146,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (this.filter === 'default') {
       // only update when no filter is applied
       // currently only one page for the filtered entries
-      this.unsubscribeFiltered.next();
+      // this.unsubscribeFiltered.next();
       const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
       this.subscribeToExpenses(obj);
     }
