@@ -3,9 +3,10 @@ import { AppComponent } from './root/app.component';
 
 import { components } from './app.components';
 import { imports } from './app.imports';
+import { TranslatePipe } from './pipes/translate.pipe';
 
 @NgModule({
-  declarations: [components],
+  declarations: [components, TranslatePipe],
   imports: [imports],
   providers: [],
   bootstrap: [AppComponent],

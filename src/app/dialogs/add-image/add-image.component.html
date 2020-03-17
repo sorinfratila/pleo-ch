@@ -4,9 +4,9 @@
 
 <form #imageForm="ngForm">
   <div class="dialog__body">
-    <p class="dialog__intro">Here you can add a receipt to the expense.</p>
+    <p class="dialog__intro">{{ 'Here you can add a receipt to the expense' | tr: 'appAddReceiptText' }}</p>
     <div class="input__container">
-      <label for="receiptUpload">Receipt: </label>
+      <label for="receiptUpload">{{ 'Receipt' | tr: 'appReceipt' }}</label>
       <input name="receiptUpload" #imageInput type="file" required (change)="processReceipt(imageInput)" />
     </div>
     <div class="preview__container">
@@ -20,10 +20,10 @@
 
   <div class="dialog__footer">
     <button type="submit" class="button main" (click)="uploadReceipt(imageInput)" [disabled]="!imageURL">
-      <span>Apply</span>
+      <span>{{ 'Apply' | tr: 'appApply' }}</span>
     </button>
     <button class="button" (click)="close()">
-      <span>Cancel</span>
+      <span>{{ 'Cancel' | tr: 'appCancel' }}</span>
     </button>
   </div>
 </form>

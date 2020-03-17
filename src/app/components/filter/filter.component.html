@@ -1,6 +1,6 @@
 <section>
   <div class="select__container">
-    <label for="property">Filter: </label>
+    <label for="property">{{ 'Filter' | tr: 'appFilter' }}:</label>
     <select name="property" class="select" (change)="onPropertyChange($event)">
       <option class="option" [value]="prop.value" *ngFor="let prop of properties">{{ prop.name }}</option>
     </select>

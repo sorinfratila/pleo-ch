@@ -4,20 +4,20 @@
 
 <form #commentForm="ngForm">
   <div class="dialog__body">
-    <p class="dialog__intro">Here you can add a comment to the expense.</p>
+    <p class="dialog__intro">{{ 'Here you can add a comment to the expense' | tr: 'appAddCommentText' }}</p>
     <!-- <app-accordion [expense]="data" [showReceipts]="false"></app-accordion> -->
     <div class="input__container textarea">
-      <label for="comment">Comment*: </label>
+      <label for="comment">{{ 'Comment' | tr: 'appComment' }}*: </label>
       <textarea name="comment" required [(ngModel)]="comment" type="text" rows="5"></textarea>
     </div>
   </div>
 
   <div class="dialog__footer">
     <button type="submit" class="button main" (click)="onSubmit()" [disabled]="!commentForm.form.valid">
-      <span>Apply</span>
+      <span>{{ 'Apply' | tr: 'appApply' }}</span>
     </button>
     <button class="button" (click)="close()">
-      <span>Cancel</span>
+      <span>{{ 'Cancel' | tr: 'appCancel' }}</span>
     </button>
   </div>
 </form>

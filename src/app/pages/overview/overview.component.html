@@ -4,17 +4,16 @@
       <!-- contains some controls -->
       <div class="lang">
         <div class="select__container">
-          <label for="language">Lang: </label>
           <select name="language" class="select" (change)="onLanguageChange($event)">
             <option class="option" [value]="lang.value" *ngFor="let lang of langs">{{ lang.name }}</option>
           </select>
         </div>
       </div>
-      <section class="filters" *ngIf="totalEntries">
+      <section class="filters" *ngIf="totalEntries && !isLoading">
         <app-filter (filterChange)="onFilterChange($event)" [totalEntries]="totalEntries"></app-filter>
       </section>
     </section>
-    <div class="container">
+    <div class="container" *ngIf="!isLoading; else spinner">
       <section class="list" *ngIf="innerWidth < 1400; else table">
         <!-- container for the list of expenses with each row being an expense -->
         <app-expense
@@ -33,7 +32,7 @@
             <div class="table__header">
               <div class="table__header__section" *ngFor="let column of tableColumns">
                 <div *ngIf="column.name" class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
-                  <p>{{ column.name }}</p>
+                  <p>{{ column.name | tr: column.value }}</p>
                 </div>
               </div>
             </div>
@@ -103,6 +102,10 @@
         </section>
       </ng-template>
     </div>
+    <ng-template #spinner>
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </ng-template>
+
     <!-- app footer containing the pages/pagination module -->
     <app-pagination
       *ngIf="nrOfPages.amount"

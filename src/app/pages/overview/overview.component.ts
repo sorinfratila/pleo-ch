@@ -25,6 +25,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   nrOfPages: any;
   filter: string;
   innerWidth: number;
+  isLoading: boolean;
   tableColumns: any[];
   langs: any[];
 
@@ -33,26 +34,27 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private expensesService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
-    private transService: TranslationService,
+    private i18n: TranslationService,
   ) {
     this.innerWidth = window.innerWidth;
     this.totalEntries = 0;
     this.nrOfPages = { amount: 0 };
     this.filter = 'default';
+    this.isLoading = true;
     this.langs = [
       { value: 'en', name: 'EN' },
       { value: 'ro', name: 'RO' },
     ];
     this.tableColumns = [
-      { value: 'first', name: 'First Name', width: 90 },
-      { value: 'last', name: 'Last Name', width: 100 },
-      { value: 'date', name: 'Date', width: 85 },
-      { value: 'value', name: 'Value', width: 80 },
-      { value: 'currency', name: 'Currency', width: 70 },
-      { value: 'merchant', name: 'Merchant', width: 100 },
-      { value: 'receipts', name: 'Receipts', width: 120 },
-      { value: 'comment', name: 'Comment', width: 120 },
-      { value: 'category', name: 'Category', width: 60 },
+      { value: 'appFirst', name: 'First Name', width: 90 },
+      { value: 'appLast', name: 'Last Name', width: 100 },
+      { value: 'appDate', name: 'Date', width: 85 },
+      { value: 'appValue', name: 'Value', width: 80 },
+      { value: 'appCurrency', name: 'Currency', width: 70 },
+      { value: 'appMerchant', name: 'Merchant', width: 100 },
+      { value: 'appReceipts', name: 'Receipts', width: 120 },
+      { value: 'appComment', name: 'Comment', width: 120 },
+      { value: 'appCategory', name: 'Category', width: 60 },
       { value: 'addReceipt', name: null, width: 50 },
       { value: 'addComment', name: null, width: 50 },
     ];
@@ -64,11 +66,9 @@ export class OverviewComponent implements OnInit, OnDestroy {
     console.log(this.innerWidth);
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.subscribeToExpenses();
-    this.getLanguage();
-    // const data = await this.getLanguage();
-    // console.log('data', data);
+    this.getDefaultLang();
   }
 
   ngOnDestroy(): void {
@@ -76,19 +76,16 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
   }
 
-  // public setLanguage() {
-  //   const browserlang = this.translateService.getBrowserLang();
-  //   if (this.langs.indexOf(browserlang) > -1) {
-  //     this.translateService.setDefaultLang(browserlang);
-  //   } else this.translateService.setDefaultLang('en');
-  // }
-
-  public async getLanguage(lang: string = 'en') {
+  public async getDefaultLang(lang: string = 'en') {
     try {
-      const data = await this.transService.getLanguageJSON(lang);
-      console.log('', data);
+      const data = await this.i18n.getLanguageJSON(lang);
+      this.i18n.setLangObj(data, lang);
+      console.log('data', data);
+      this.isLoading = false;
+      this.CDR.detectChanges();
     } catch (e) {
       this.toast.error(e);
+      this.isLoading = false;
     }
   }
 
@@ -222,11 +219,20 @@ export class OverviewComponent implements OnInit, OnDestroy {
     });
   };
 
-  public onLanguageChange = (event: any) => {
+  public onLanguageChange = async (event: any) => {
+    this.isLoading = true;
     const {
       target: { value },
     } = event;
 
-    console.log('', value);
+    try {
+      const languageObj = await this.i18n.getLanguageJSON(value);
+      this.i18n.setLangObj(languageObj, value);
+      this.isLoading = false;
+      this.CDR.detectChanges();
+    } catch (e) {
+      this.toast.error(e);
+      this.isLoading = false;
+    }
   };
 }
