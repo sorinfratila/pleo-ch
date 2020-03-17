@@ -40,7 +40,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.totalEntries = 0;
     this.nrOfPages = { amount: 0 };
     this.filter = 'default';
-    this.isLoading = true;
+    // this.isLoading = true;
     this.langs = [
       { value: 'en', name: 'EN' },
       { value: 'ro', name: 'RO' },
@@ -68,25 +68,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscribeToExpenses();
-    this.getDefaultLang();
   }
 
   ngOnDestroy(): void {
     if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
     if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
-  }
-
-  public async getDefaultLang(lang: string = 'en') {
-    try {
-      const data = await this.i18n.getLanguageJSON(lang);
-      this.i18n.setLangObj(data, lang);
-      console.log('data', data);
-      this.isLoading = false;
-      this.CDR.detectChanges();
-    } catch (e) {
-      this.toast.error(e);
-      this.isLoading = false;
-    }
   }
 
   /**
