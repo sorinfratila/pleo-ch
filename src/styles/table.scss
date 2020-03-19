@@ -1,0 +1,89 @@
+@import '../styles/helpers.scss';
+
+.table {
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+
+  .table__header {
+    display: flex;
+    font-weight: 700;
+    align-items: center;
+    letter-spacing: 1px;
+    background-color: $grey-03;
+    padding: 1rem 0 1rem 1rem;
+    border-bottom: 1px solid $black-02;
+
+    .table__header__section {
+      display: flex;
+      align-items: center;
+      min-width: fit-content;
+      margin-right: 0.2rem;
+
+      &.center {
+        justify-content: center;
+      }
+
+      p {
+        color: $white-text;
+        font-size: 1.2rem;
+      }
+
+      .table__header__cell {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .table__body {
+    overflow-x: hidden;
+    max-height: calc(
+      100vh - 145px
+    ); // accounting here for all the other heights involved in the total view of the screen
+    overflow-y: auto;
+    background-color: $white-text;
+
+    .table__row {
+      display: flex;
+      color: $black-02;
+      min-height: 4rem;
+      max-height: 4rem;
+      padding: 0 1rem;
+      border-bottom: 1px solid $black-02;
+
+      .table__row__section {
+        max-width: 100px;
+        margin-right: 0.2rem;
+
+        span {
+          @extend .truncate;
+        }
+
+        &.center {
+          display: flex;
+          justify-content: center;
+        }
+
+        .receipts__wrapper {
+          overflow: auto;
+          display: flex;
+        }
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .table__row__section {
+        display: flex;
+        align-items: center;
+
+        span {
+          font-size: 1.4rem;
+        }
+      }
+    }
+  }
+}

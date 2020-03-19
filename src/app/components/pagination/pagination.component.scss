@@ -1,0 +1,32 @@
+@import '../../../styles/colors.scss';
+
+section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  width: 100%;
+
+  .pages {
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    overflow: auto;
+
+    a {
+      padding: 0.8rem 1.2rem;
+      font-size: 1.6rem;
+      font-weight: 700;
+      border-radius: 20rem;
+      background-color: transparent;
+      transition: all 1s ease-in;
+      -webkit-transition: all 1s ease-in-out;
+
+      &.selected {
+        background-color: $white-text;
+        transition: all 1s ease-out;
+        -webkit-transition: all 1s ease-in-out;
+      }
+    }
+  }
+}

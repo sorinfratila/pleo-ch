@@ -1,0 +1,43 @@
+<section class="accordion__body" [ngClass]="{ opened: expense.isOpen }">
+  <table>
+    <colgroup>
+      <col class="col_one" />
+      <col class="col_two" />
+    </colgroup>
+    <tbody>
+      <tr>
+        <td><label>Date</label></td>
+        <td>
+          <p>{{ expense.date | date: 'dd  MMM  y' }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Merchant</label></td>
+        <td>
+          <p>{{ expense.merchant }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Comment</label></td>
+        <td>
+          <p>{{ expense.comment }}</p>
+        </td>
+      </tr>
+      <tr *ngIf="showReceipts">
+        <td><label>Receipts</label></td>
+        <td class="receipts">
+          <div class="container">
+            <app-thumbnail *ngFor="let receipt of expense.receipts" [src]="receipt.url"></app-thumbnail>
+          </div>
+        </td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td><label>Category</label></td>
+        <td>
+          <p>{{ expense.category }}</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

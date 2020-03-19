@@ -1,0 +1,22 @@
+{
+  "appFilter": "Filtru",
+  "appBy": "De",
+  "appFirst": "Prenume",
+  "appLast": "Nume",
+  "appDate": "Data",
+  "appValue": "Valoare",
+  "appCurrency": "Valuta",
+  "appMerchant": "Comerciant",
+  "appReceipts": "Bonuri fiscal",
+  "appReceipt": "Bon fiscal",
+  "appComments": "Comentarii",
+  "appComment": "Comentariu",
+  "appCategory": "Categorie",
+  "appAddReceiptText": "Aici puteti adauga un bon acestei cheltuieli",
+  "appApply": "Aplica",
+  "appCancel": "Renunta",
+  "appAddCommentText": "Aici puteti adauga un comentariu acestei cheltuieli",
+  "appEmptyList": "Lista de cheltuieli este goala, este pornit API-ul?",
+  "appAllEntries": "Toate",
+  "appLanguage": "Limba"
+}

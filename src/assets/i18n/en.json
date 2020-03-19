@@ -1,0 +1,22 @@
+{
+  "appFilter": "Filter",
+  "appBy": "By",
+  "appFirst": "First Name",
+  "appLast": "Last Name",
+  "appDate": "Date",
+  "appValue": "Value",
+  "appCurrency": "Currency",
+  "appMerchant": "Merchant",
+  "appReceipts": "Receipts",
+  "appReceipt": "Receipt",
+  "appComments": "Comments",
+  "appComment": "Comment",
+  "appCategory": "Category",
+  "appAddReceiptText": "Here you can add a receipt to the expense",
+  "appApply": "Apply",
+  "appCancel": "Cancel",
+  "appAddCommentText": "Here you can add a comment to the expense",
+  "appEmptyList": "Expenses list is empty, is the API running ?",
+  "appAllEntries": "All Entries",
+  "appLanguage": "Language"
+}

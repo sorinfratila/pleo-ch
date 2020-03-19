@@ -1,0 +1,29 @@
+<div class="dialog__header">
+  <h1>{{ data.user.first + ' ' + data.user.last + ' ' + data.amount.value + ' ' + data.amount.currency }}</h1>
+</div>
+
+<form #imageForm="ngForm">
+  <div class="dialog__body">
+    <p class="dialog__intro">{{ 'Here you can add a receipt to the expense' | tr: 'appAddReceiptText' }}</p>
+    <div class="input__container">
+      <label for="receiptUpload">{{ 'Receipt' | tr: 'appReceipt' }}</label>
+      <input name="receiptUpload" #imageInput type="file" required (change)="processReceipt(imageInput)" />
+    </div>
+    <div class="preview__container">
+      <img [src]="imageURL" *ngIf="imageURL" alt="Preview Image" />
+    </div>
+    <!-- Progress Bar -->
+    <div class="progress" *ngIf="progress > 0">
+      <div class="progress-bar" role="progressbar" [style.width.%]="progress"></div>
+    </div>
+  </div>
+
+  <div class="dialog__footer">
+    <button type="submit" class="button main" (click)="uploadReceipt(imageInput)" [disabled]="!imageURL">
+      <span>{{ 'Apply' | tr: 'appApply' }}</span>
+    </button>
+    <button class="button" (click)="close()">
+      <span>{{ 'Cancel' | tr: 'appCancel' }}</span>
+    </button>
+  </div>
+</form>

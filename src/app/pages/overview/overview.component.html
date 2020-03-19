@@ -1,0 +1,123 @@
+<main>
+  <div class="wrapper" *ngIf="this.expenses.length; else empty">
+    <section class="header">
+      <!-- contains some controls -->
+      <div class="lang">
+        <div class="select__container">
+          <select name="language" class="select" (change)="onLanguageChange($event)">
+            <option class="option" [value]="lang.value" *ngFor="let lang of langs">{{ lang.name }}</option>
+          </select>
+        </div>
+      </div>
+      <section class="filters" *ngIf="totalEntries && !isLoading">
+        <app-filter (filterChange)="onFilterChange($event)" [totalEntries]="totalEntries"></app-filter>
+      </section>
+    </section>
+    <div class="container" *ngIf="!isLoading; else spinner">
+      <section class="list" *ngIf="innerWidth < 1400; else table">
+        <!-- container for the list of expenses with each row being an expense -->
+        <app-expense
+          *ngFor="let expense of expenses; let j = index"
+          [expense]="expense"
+          (addReceipt)="onAddReceipt(j, $event)"
+          (addComment)="onAddComment(j, $event)"
+        ></app-expense>
+      </section>
+      <ng-template #table>
+        <!-- the table to show when the screen is big enough -->
+        <section class="table__container">
+          <!-- /TABLE -->
+          <div class="table">
+            <!-- TABLE HEADER -->
+            <div class="table__header">
+              <div class="table__header__section" *ngFor="let column of tableColumns">
+                <div *ngIf="column.name" class="table__header__cell" [ngStyle]="{ 'min-width': column.width + 'px' }">
+                  <p>{{ column.name | tr: column.value }}</p>
+                </div>
+              </div>
+            </div>
+            <!-- /TABLE HEADER -->
+
+            <!-- TABLE BODY -->
+            <div class="table__body">
+              <div class="table__row" *ngFor="let row of expenses; let i = index">
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[0].width + 'px' }">
+                  <span>{{ row.user.first }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[1].width + 'px' }">
+                  <span>{{ row.user.last }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[2].width + 'px' }">
+                  <span>{{ row.date | date: 'dd-MM-y' }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[3].width + 'px' }">
+                  <span>{{ row.amount.value }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[4].width + 'px' }">
+                  <span>{{ row.amount.currency }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[5].width + 'px' }">
+                  <span>{{ row.merchant }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[6].width + 'px' }">
+                  <div class="receipts__wrapper">
+                    <app-thumbnail
+                      *ngFor="let receipt of row.receipts"
+                      [src]="receipt.url"
+                      [isSmall]="true"
+                    ></app-thumbnail>
+                  </div>
+                </div>
+
+                <div
+                  matTooltip="{{ row.comment }}"
+                  class="table__row__section"
+                  [ngStyle]="{ 'min-width': tableColumns[7].width + 'px' }"
+                >
+                  <span>{{ row.comment }}</span>
+                </div>
+
+                <div class="table__row__section" [ngStyle]="{ 'min-width': tableColumns[8].width + 'px' }">
+                  <span>{{ row.category }}</span>
+                </div>
+
+                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[9].width + 'px' }">
+                  <a (click)="onAddReceipt(i)" class="pointer"><i class="material-icons">add_photo_alternate</i></a>
+                </div>
+
+                <div class="table__row__section center" [ngStyle]="{ 'min-width': tableColumns[10].width + 'px' }">
+                  <a (click)="onAddComment(i)" class="pointer"><i class="material-icons">add_comment</i></a>
+                </div>
+              </div>
+            </div>
+            <!-- TABLE BODY -->
+          </div>
+          <!-- /TABLE -->
+        </section>
+      </ng-template>
+    </div>
+    <ng-template #spinner>
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </ng-template>
+
+    <!-- app footer containing the pages/pagination module -->
+    <app-pagination
+      *ngIf="nrOfPages.amount"
+      [nrOfPages]="nrOfPages"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+  <!-- if the api is not running or the  -->
+  <ng-template #empty>
+    <div class="wrapper empty">
+      <h1>Expenses list is empty, is the API running ?</h1>
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+  </ng-template>
+</main>

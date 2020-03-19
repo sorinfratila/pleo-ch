@@ -1,1 +1,55 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@import '~ngx-toastr/toastr';
+
+@import './styles/colors.scss';
+@import './styles/dialog.scss';
+@import './styles/button.scss';
+@import './styles/select.scss';
+@import './styles/table.scss';
+@import './styles/helpers.scss';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  -webkit-overflow-scrolling: touch; // for scrolling on touch devices
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  color: $black-02;
+  background-color: $anthra-02;
+  font-size: 1.2rem;
+}
+
+.material-icons {
+  font-size: 28px;
+
+  &.small {
+    font-size: 20px;
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+// mat spinner color
+.mat-progress-spinner circle,
+.mat-spinner circle {
+  stroke: $color5;
+}
+
+.loader-spinner {
+  mat-dialog-container {
+    box-shadow: none !important;
+    background: none !important;
+  }
+}

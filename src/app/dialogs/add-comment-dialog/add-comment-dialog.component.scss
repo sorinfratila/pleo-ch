@@ -1,0 +1,16 @@
+.input__container {
+  display: flex;
+  align-items: center;
+  label {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+  }
+
+  &.textarea {
+    align-items: flex-start;
+
+    textarea {
+      width: 100%;
+    }
+  }
+}
