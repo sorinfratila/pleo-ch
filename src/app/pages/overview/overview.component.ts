@@ -77,7 +77,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   /**
    *
-   * @param obj contains the limit and offset values for pagination
+   * @param obj contains the limit and offset props for pagination
    */
   private subscribeToExpenses(obj?: any) {
     this.expenses$ = this.expensesService

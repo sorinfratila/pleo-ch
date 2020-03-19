@@ -17,8 +17,8 @@ import { tap, mergeMap } from 'rxjs/operators';
 export class ExpensesStateModel {
   expenses: Expense[];
   filter: {
-    type: any;
-    value: any;
+    type: string;
+    value: string;
   };
   language: string;
   totalExpenses: number;
@@ -30,8 +30,9 @@ export class ExpensesStateModel {
     expenses: [],
     totalExpenses: 0,
     filter: {
-      type: [{ value: 'default', name: 'All entries' }],
-      value: [{ value: 'default', name: 'All entries' }],
+      // TODO: need to change this to arrays
+      type: 'default',
+      value: 'default',
     },
     language: 'en',
   },
