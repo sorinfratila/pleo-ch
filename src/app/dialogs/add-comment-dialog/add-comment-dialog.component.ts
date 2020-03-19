@@ -35,7 +35,7 @@ export class AddCommentDialogComponent implements AfterViewInit {
   }
 
   public onSubmit() {
-    this.expenseService.uploadComment(this.comment, this.data.id).subscribe({
+    this.expenseService.uploadComment({ comment: this.comment, expenseId: this.data.id }).subscribe({
       next: (response: Expense) => {
         this.toast.success('Comment saved');
         this.close(response);

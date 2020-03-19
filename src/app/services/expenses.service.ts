@@ -15,8 +15,8 @@ export class ExpensesService {
     this.baseURL = environment.rootURL;
   }
 
-  public getExpenses(obj?: any): Observable<any> {
-    const link = obj ? `?limit=${obj.limit}&offset=${obj.offset}` : '';
+  public getExpenses(payload?: any): Observable<any> {
+    const link = payload ? `?limit=${payload.limit}&offset=${payload.offset}` : '';
     return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
   }
 
@@ -24,7 +24,7 @@ export class ExpensesService {
     return this.http.get(`${this.baseURL}/expenses?limit=${limit}&offset=${0}`).pipe(catchError(this.errorHandler));
   }
 
-  public uploadReceipt(receipt: File, expenseId: string): Observable<any> {
+  public uploadReceipt({ receipt, expenseId }): Observable<any> {
     const formData = new FormData();
 
     formData.append('receipt', receipt);
@@ -37,7 +37,8 @@ export class ExpensesService {
       .pipe(catchError(this.errorHandler));
   }
 
-  public uploadComment(comment: string, expenseId: string): Observable<any> {
+  public uploadComment(payload: any): Observable<any> {
+    const { comment, expenseId } = payload;
     const data = { comment };
     return this.http.post(`${this.baseURL}/expenses/${expenseId}`, data).pipe(catchError(this.errorHandler));
   }

@@ -44,7 +44,7 @@ export class AddImageComponent {
 
   uploadReceipt(receipt: any) {
     const file = receipt.files[0];
-    this.expenseService.uploadReceipt(file, this.data.id).subscribe({
+    this.expenseService.uploadReceipt({ receipt: file, expenseId: this.data.id }).subscribe({
       next: (event: HttpEvent<any>) => {
         switch (event.type) {
           case HttpEventType.Response: {
