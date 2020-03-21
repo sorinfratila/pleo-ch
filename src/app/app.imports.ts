@@ -7,6 +7,9 @@ import { ToastrModule } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgxsModule } from '@ngxs/store';
+import { ExpenseState } from './store/expense.state';
+import { environment } from 'src/environments/environment';
 
 export const imports = [
   BrowserModule,
@@ -18,4 +21,10 @@ export const imports = [
   FormsModule,
   MatTooltipModule,
   MatProgressSpinnerModule,
+  NgxsModule.forRoot([ExpenseState], {
+    developmentMode: !environment.production,
+    selectorOptions: {
+      suppressErrors: false,
+    },
+  }),
 ];

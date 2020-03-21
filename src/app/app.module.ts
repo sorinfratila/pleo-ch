@@ -1,14 +1,20 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { AppComponent } from './root/app.component';
 
 import { components } from './app.components';
 import { imports } from './app.imports';
-import { TranslatePipe } from './pipes/translate.pipe';
+import { pipes } from './app.pipes';
+import { MyErrorHandler } from 'src/utils/global-error-handler';
 
 @NgModule({
-  declarations: [components, TranslatePipe],
+  declarations: [components, pipes],
   imports: [imports],
-  providers: [],
+  providers: [
+    {
+      provide: ErrorHandler,
+      useClass: MyErrorHandler,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

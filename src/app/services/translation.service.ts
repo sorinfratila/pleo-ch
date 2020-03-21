@@ -20,14 +20,24 @@ export class TranslationService {
     this.langCode = code;
   }
 
+  public setLanguageJSON(payload: any): void {
+    console.log('in i18n service - translations OBJ', payload);
+    this.translations = payload;
+  }
+
   public getLangObj(): any {
     return this.translations;
   }
 
+  /**
+   * translate based on key param and fallback
+   * @param key translations object key that is used to get the value in each language
+   * @param fallback the default value in case key is missing from the translations object
+   */
   public tr(key: string, fallback: string): string {
     let translation = fallback;
 
-    if (this.translations[key]) {
+    if (this.translations && this.translations[key]) {
       translation = this.translations[key];
     }
 

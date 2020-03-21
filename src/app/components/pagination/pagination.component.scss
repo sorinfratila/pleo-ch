@@ -19,13 +19,15 @@ section {
       font-weight: 700;
       border-radius: 20rem;
       background-color: transparent;
-      transition: all 1s ease-in;
-      -webkit-transition: all 1s ease-in-out;
+      transition: all 0.2s ease-in-out;
+      -moz-transition: all 0.2s ease-in-out;
+      -webkit-transition: all 0.2s ease-in-out;
 
       &.selected {
         background-color: $white-text;
-        transition: all 1s ease-out;
-        -webkit-transition: all 1s ease-in-out;
+        // transition: all 1s ease-out;
+        // -moz-transition: all 1s ease-in-out;
+        // -webkit-transition: all 1s ease-in-out;
       }
     }
   }

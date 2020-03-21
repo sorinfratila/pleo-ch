@@ -2,14 +2,16 @@ import { Expense } from '../models/Expense';
 
 export enum ActionsType {
   GET_EXPENSES = '[Expense] GetExpenses',
+  GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
   TOGGLE_EXPENSE = '[Expense] ToggleExpense',
   UPDATE_EXPENSE = '[Expense] UpdateExpense',
   ADD_EXPENSE_COMMENT = '[Expense] AddComment',
   ADD_EXPENSE_RECEIPT = '[Expense] AddReceipt',
   SET_EXPENSE_FILTER_TYPE = '[Expense] SetFilterType',
   SET_EXPENSE_FILTER_VALUE = '[Expense] SetFilterValue',
-  SET_LANGUAGE = '[Expense] SetLanguage',
-  // SET_TOTAL_EXPENSES = '[Expense] SetTotalExpenses',
+  SET_LANGUAGE_CODE = '[Expense] SetLanguageCode',
+  SET_CURRENT_PAGE = '[Expense] SetCurrentPage',
+  SET_TOTAL_EXPENSES = '[Expense] SetTotalExpenses',
 }
 
 export class GetExpenses {
@@ -37,9 +39,24 @@ export class SetFilterValue {
   constructor(public filterValue: string) {}
 }
 
-export class SetLanguage {
-  public static readonly type = ActionsType.SET_LANGUAGE;
+export class SetLanguageCode {
+  public static readonly type = ActionsType.SET_LANGUAGE_CODE;
   constructor(public lang: string) {}
+}
+
+export class GetLanguageJSON {
+  public static readonly type = ActionsType.GET_LANGUAGE_JSON;
+  constructor() {}
+}
+
+export class SetCurrentPage {
+  public static readonly type = ActionsType.SET_CURRENT_PAGE;
+  constructor(public currentPage: number) {}
+}
+
+export class SetTotalExpenses {
+  public static readonly type = ActionsType.SET_TOTAL_EXPENSES;
+  constructor(public total: number) {}
 }
 
 export class ToggleExpense {
@@ -51,8 +68,3 @@ export class UpdateExpense {
   public static readonly type = ActionsType.UPDATE_EXPENSE;
   constructor(public expense: Expense) {}
 }
-
-// export class SetTotalExpenses {
-//   public static readonly type = ActionsType.SET_TOTAL_EXPENSES;
-//   constructor(public total: number) {}
-// }

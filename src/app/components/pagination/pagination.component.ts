@@ -1,14 +1,8 @@
-import {
-  Component,
-  Input,
-  ChangeDetectionStrategy,
-  SimpleChanges,
-  OnChanges,
-  ChangeDetectorRef,
-  Output,
-  EventEmitter,
-  OnInit,
-} from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, SimpleChanges, OnChanges } from '@angular/core';
+import { Select, Store } from '@ngxs/store';
+import { ExpenseState } from 'src/app/store/expense.state';
+import { Observable } from 'rxjs';
+import { GetExpenses, SetCurrentPage } from 'src/app/store/expense.actions';
 
 @Component({
   selector: 'app-pagination',
@@ -16,71 +10,49 @@ import {
   styleUrls: ['./pagination.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginationComponent implements OnChanges, OnInit {
-  @Input() nrOfPages: any;
-  @Output() pageChange = new EventEmitter<any>();
-  pages: any[];
-  constructor(private CDR: ChangeDetectorRef) {
-    this.pages = [{ num: 1, selected: true }];
-  }
+export class PaginationComponent implements OnChanges {
+  /** the total amount of expenses comming from the overview page */
+  @Input() totalExpenses: any;
 
-  ngOnInit(): void {
-    this.CDR.detectChanges();
+  /**  */
+  pages: number[];
+
+  /** get currentPage as Observable */
+  @Select(ExpenseState.getCurrentPage)
+  public currentPage$: Observable<number>;
+
+  constructor(private store: Store) {
+    this.pages = [1];
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes) {
-      const {
-        nrOfPages: { currentValue },
-      } = changes;
-      if (currentValue) {
-        // updating the pages array to have the correct amount of pages
-        const selectedPage = this.pages.find(p => p.selected);
-        this.pages = this.getPages(currentValue.amount);
-        if (selectedPage) this.updateSelection(selectedPage);
-        this.CDR.detectChanges();
-      }
+    const {
+      totalExpenses: { currentValue },
+    } = changes;
+    if (currentValue) {
+      this.pages = this.getPagesArray(currentValue);
     }
   }
 
   /**
-   * @param nrOfEntries the number of expenses currently got from BE
+   * makes the array containing all the pages
+   * @param totalExpenses the number of expenses
    */
-  public getPages = (nrOfEntries: number): any[] => {
+  public getPagesArray = (totalExpenses: number): number[] => {
     const pages = [];
-    const nrOfPages = Math.ceil(nrOfEntries / 25);
-    for (let i = 1; i <= nrOfPages; i++) {
-      pages.push({ num: i, selected: !!(i === 1) });
+    const pagesCount = Math.ceil(totalExpenses / 25);
+    for (let i = 1; i <= pagesCount; i++) {
+      pages.push(i);
     }
     return pages;
   };
 
   /**
-   * change selected page and emit the page number for updates in overview
-   * @param page the page object
+   * change selected page and dispatch @GetExpenses and @SetCurrentPage actions
+   * @param page the page number to go to
    */
-  public goToPage = (page: any) => {
-    this.pageChange.emit(page.num);
-    this.updateSelection(page);
-  };
-
-  /**
-   * update selection in pages array
-   * @param page the page object contains num and selected props
-   */
-  private updateSelection = (page: any) => {
-    const { num } = page;
-    this.pages = this.pages.map(p => {
-      if (p.num === num) {
-        return {
-          ...p,
-          selected: true,
-        };
-      }
-      return {
-        ...p,
-        selected: false,
-      };
-    });
+  public goToPage = (page: any): void => {
+    const payload = { limit: 25, offset: (page - 1) * 25 };
+    this.store.dispatch([new GetExpenses(payload), new SetCurrentPage(page)]);
   };
 }

@@ -1,5 +1,5 @@
 import { Expense } from '../models/Expense';
-import { State, Action, StateContext } from '@ngxs/store';
+import { State, Action, StateContext, Selector, NgxsOnInit } from '@ngxs/store';
 import { ExpensesService } from '../services/expenses.service';
 import { TranslationService } from '../services/translation.service';
 import {
@@ -10,9 +10,14 @@ import {
   SetFilterValue,
   ToggleExpense,
   UpdateExpense,
-  SetLanguage,
+  SetLanguageCode,
+  SetCurrentPage,
+  GetLanguageJSON,
+  SetTotalExpenses,
 } from './expense.actions';
-import { tap, mergeMap } from 'rxjs/operators';
+import { tap, mergeMap, map } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 export class ExpensesStateModel {
   expenses: Expense[];
@@ -20,8 +25,9 @@ export class ExpensesStateModel {
     type: string;
     value: string;
   };
-  language: string;
+  langCode: string;
   totalExpenses: number;
+  currentPage: number;
 }
 
 @State<ExpensesStateModel>({
@@ -30,23 +36,61 @@ export class ExpensesStateModel {
     expenses: [],
     totalExpenses: 0,
     filter: {
-      // TODO: need to change this to arrays
       type: 'default',
       value: 'default',
     },
-    language: 'en',
+    langCode: 'en',
+    currentPage: 1,
   },
 })
-export class ExpenseState {
-  constructor(private expensesService: ExpensesService, private i18nService: TranslationService) {}
+@Injectable()
+export class ExpenseState implements NgxsOnInit {
+  constructor(
+    private expensesService: ExpensesService,
+    private i18nService: TranslationService,
+    private toast: ToastrService,
+  ) {}
+  @Selector()
+  static getExpenses(state: ExpensesStateModel): Expense[] {
+    return state.expenses;
+  }
+
+  @Selector()
+  static getTotalExpenses(state: ExpensesStateModel): number {
+    return state.totalExpenses;
+  }
+
+  @Selector()
+  static getCurrentPage(state: ExpensesStateModel): number {
+    return state.currentPage;
+  }
+
+  @Selector()
+  static getFilterType(state: ExpensesStateModel): string {
+    return state.filter.type;
+  }
+
+  @Selector()
+  static getFilterValue(state: ExpensesStateModel): any[] | string {
+    if (state.filter.value.length === 0) return 'No filter type selected';
+    return state.filter.value;
+  }
+
+  @Selector()
+  static getLanguage(state: ExpensesStateModel) {
+    return state.langCode;
+  }
+
+  public ngxsOnInit({ dispatch }: StateContext<ExpensesStateModel>): void {
+    dispatch([GetExpenses, GetLanguageJSON]);
+  }
 
   @Action(GetExpenses)
   getExpenses(ctx: StateContext<ExpensesStateModel>, action: GetExpenses) {
     return this.expensesService.getExpenses(action.payload).pipe(
-      tap((getExpensesResponse: any) => {
-        // const state = ctx.getState();
+      map((getExpensesResponse: any) => {
         const { expenses, total } = getExpensesResponse;
-        expenses.map((expense: Expense) => {
+        const newExpenses = expenses.map((expense: Expense) => {
           // patching each expense with isOpen to handle expense toggling
           return {
             ...expense,
@@ -54,12 +98,15 @@ export class ExpenseState {
           };
         });
 
-        ctx.patchState({
-          expenses,
-          totalExpenses: total,
-        });
+        ctx.patchState({ expenses: newExpenses });
+        ctx.dispatch(new SetTotalExpenses(total));
       }),
     );
+  }
+
+  @Action(SetTotalExpenses)
+  setTotalExpenses({ patchState }: StateContext<ExpensesStateModel>, { total }: SetTotalExpenses) {
+    patchState({ totalExpenses: total });
   }
 
   @Action(AddComment)
@@ -90,33 +137,48 @@ export class ExpenseState {
   }
 
   @Action(SetFilterType)
-  setFilterType(ctx: StateContext<ExpensesStateModel>, action: SetFilterType) {
+  setFilterType(ctx: StateContext<ExpensesStateModel>, { filterType }: SetFilterType) {
     const state = ctx.getState();
     ctx.patchState({
       filter: {
         ...state.filter,
-        type: action.filterType,
+        type: filterType,
       },
     });
   }
 
   @Action(SetFilterValue)
-  setFilterValue(ctx: StateContext<ExpensesStateModel>, action: SetFilterValue) {
-    const state = ctx.getState();
-    ctx.patchState({
+  setFilterValue({ getState, patchState }: StateContext<ExpensesStateModel>, { filterValue }: SetFilterValue) {
+    const state = getState();
+    patchState({
       filter: {
         ...state.filter,
-        value: action.filterValue,
+        value: filterValue,
       },
     });
   }
 
-  @Action(SetLanguage)
-  setLanguage(ctx: StateContext<ExpensesStateModel>, action: SetLanguage) {
-    const state = ctx.getState();
-    ctx.patchState({
-      language: action.lang,
-    });
+  @Action(SetLanguageCode)
+  SetLanguageCode({ patchState, dispatch }: StateContext<ExpensesStateModel>, { lang }: SetLanguageCode) {
+    patchState({ langCode: lang });
+
+    return dispatch(new GetLanguageJSON());
+  }
+
+  @Action(GetLanguageJSON)
+  async getLanguageJSON({ getState }: StateContext<ExpensesStateModel>) {
+    const { langCode } = getState();
+    try {
+      const langObj = await this.i18nService.getLanguageJSON(langCode);
+      this.i18nService.setLanguageJSON(langObj);
+    } catch (e) {
+      this.toast.error(e.message);
+    }
+  }
+
+  @Action(SetCurrentPage)
+  setCurrentPage({ patchState }: StateContext<ExpensesStateModel>, { currentPage }: SetCurrentPage) {
+    patchState({ currentPage });
   }
 
   // @Action(ToggleExpense)

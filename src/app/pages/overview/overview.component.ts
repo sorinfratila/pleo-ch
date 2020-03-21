@@ -1,13 +1,16 @@
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
-import { Subscription, Subject } from 'rxjs';
-import { takeUntil, take, first } from 'rxjs/operators';
+import { Subscription, Subject, Observable } from 'rxjs';
+import { takeUntil, take, first, map, tap, withLatestFrom } from 'rxjs/operators';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { ToastrService } from 'ngx-toastr';
 import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
 import { TranslationService } from 'src/app/services/translation.service';
+import { Store, Select } from '@ngxs/store';
+import { GetExpenses, SetCurrentPage, GetLanguageJSON, SetLanguageCode } from 'src/app/store/expense.actions';
+import { ExpensesStateModel, ExpenseState } from 'src/app/store/expense.state';
 
 @Component({
   selector: 'app-overview',
@@ -16,9 +19,7 @@ import { TranslationService } from 'src/app/services/translation.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverviewComponent implements OnInit, OnDestroy {
-  expenses$: Subscription;
-  unsubscribeExpense = new Subject<any>();
-  unsubscribeFiltered = new Subject<any>();
+  destroy$ = new Subject<any>();
   filteredExpenses$: Subscription;
   expenses: Expense[] = [];
   totalEntries: number;
@@ -29,12 +30,24 @@ export class OverviewComponent implements OnInit, OnDestroy {
   tableColumns: any[];
   langs: any[];
 
+  @Select(ExpenseState.getExpenses)
+  public expenses$: Observable<Expense[]>;
+
+  @Select(ExpenseState.getTotalExpenses)
+  public totalExpenses$: Observable<number>;
+
+  @Select(ExpenseState.getCurrentPage)
+  public pagesCount$: Observable<number>;
+
+  public expens$: Observable<Expense[]>;
+
   constructor(
     private dialog: MatDialog,
     private expensesService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
     private i18n: TranslationService,
+    private store: Store,
   ) {
     this.innerWidth = window.innerWidth;
     this.totalEntries = 0;
@@ -63,38 +76,46 @@ export class OverviewComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.innerWidth = event.target.innerWidth;
-    console.log(this.innerWidth);
   }
 
-  ngOnInit() {
-    this.subscribeToExpenses();
-  }
+  ngOnInit() {}
 
   ngOnDestroy(): void {
-    // if (this.unsubscribeExpense) this.unsubscribeExpense.complete();
-    // if (this.unsubscribeFiltered) this.unsubscribeFiltered.complete();
+    if (this.destroy$) {
+      this.destroy$.next();
+      this.destroy$.complete();
+    }
   }
+
+  // private getContent({ limit, offset }) {
+  //   this.store
+  //     .dispatch(new GetExpenses({ limit, offset }))
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe(state => {
+  //       // this.expenses =
+  //     });
+  // }
 
   /**
    *
    * @param obj contains the limit and offset props for pagination
    */
-  private subscribeToExpenses(obj?: any) {
-    this.expenses$ = this.expensesService
-      .getExpenses(obj)
-      .pipe(first())
-      .subscribe({
-        next: (result: any) => {
-          const { total, expenses } = result;
-          this.totalEntries = total;
-          this.nrOfPages = { amount: total };
-          this.expenses = this.appendProp(expenses);
+  // private subscribeToExpenses(obj?: any) {
+  //   this.expenses$ = this.expensesService
+  //     .getExpenses(obj)
+  //     .pipe(first())
+  //     .subscribe({
+  //       next: (result: any) => {
+  //         const { total, expenses } = result;
+  //         this.totalEntries = total;
+  //         this.nrOfPages = { amount: total };
+  //         this.expenses = this.appendProp(expenses);
 
-          this.CDR.detectChanges();
-        },
-        error: err => this.toast.error(err),
-      });
-  }
+  //         this.CDR.detectChanges();
+  //       },
+  //       error: err => this.toast.error(err),
+  //     });
+  // }
 
   // add isOpen prop to the expenses for accordion control
   private appendProp = (list: Expense[]) => {
@@ -137,18 +158,19 @@ export class OverviewComponent implements OnInit, OnDestroy {
         });
     } else {
       // if default filter, show normal results with pagination
-      this.unsubscribeFiltered.next();
-      this.subscribeToExpenses();
+      // this.unsubscribeFiltered.next();
+      // this.subscribeToExpenses();
     }
   };
 
-  public onPageChange = (pageNumber: number) => {
+  public onPageChange = (page: number) => {
     if (this.filter === 'default') {
       // only update when no filter is applied
       // currently only one page for the filtered entries
       // this.unsubscribeFiltered.next();
-      const obj = { limit: 25, offset: (pageNumber - 1) * 25 };
-      this.subscribeToExpenses(obj);
+      const payload = { limit: 25, offset: (page - 1) * 25 };
+      this.store.dispatch([new GetExpenses(payload), new SetCurrentPage(page)]);
+      // this.subscribeToExpenses(obj);
     }
   };
 
@@ -208,17 +230,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
   public onLanguageChange = async (event: any) => {
     this.isLoading = true;
     const {
-      target: { value },
+      target: { value: langCode },
     } = event;
 
-    try {
-      const languageObj = await this.i18n.getLanguageJSON(value);
-      this.i18n.setLangObj(languageObj, value);
+    this.store.dispatch(new SetLanguageCode(langCode));
+    setTimeout(() => {
       this.isLoading = false;
       this.CDR.detectChanges();
-    } catch (e) {
-      this.toast.error(e);
-      this.isLoading = false;
-    }
+    }, 30);
   };
 }
