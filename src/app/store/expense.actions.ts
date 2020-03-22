@@ -2,6 +2,7 @@ import { Expense } from '../models/Expense';
 
 export enum ActionsType {
   GET_EXPENSES = '[Expense] GetExpenses',
+  SET_EXPENSES = '[Expense] SetExpenses',
   GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
   TOGGLE_EXPENSE = '[Expense] ToggleExpense',
   UPDATE_EXPENSE = '[Expense] UpdateExpense',
@@ -16,7 +17,12 @@ export enum ActionsType {
 
 export class GetExpenses {
   public static readonly type = ActionsType.GET_EXPENSES;
-  constructor(public payload: { limit: number; offset: number }) {}
+  constructor(public payload: { limit: number; offset: number } = { limit: 25, offset: 0 }) {}
+}
+
+export class SetExpenses {
+  public static readonly type = ActionsType.SET_EXPENSES;
+  constructor(public expenses: Expense[]) {}
 }
 
 export class AddComment {

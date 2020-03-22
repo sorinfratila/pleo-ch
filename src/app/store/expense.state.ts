@@ -8,14 +8,14 @@ import {
   AddReceipt,
   SetFilterType,
   SetFilterValue,
-  ToggleExpense,
   UpdateExpense,
   SetLanguageCode,
   SetCurrentPage,
   GetLanguageJSON,
   SetTotalExpenses,
+  SetExpenses,
 } from './expense.actions';
-import { tap, mergeMap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
@@ -102,6 +102,11 @@ export class ExpenseState implements NgxsOnInit {
         ctx.dispatch(new SetTotalExpenses(total));
       }),
     );
+  }
+
+  @Action(SetExpenses)
+  setExpenses({ patchState }: StateContext<ExpensesStateModel>, { expenses }: SetExpenses) {
+    patchState({ expenses });
   }
 
   @Action(SetTotalExpenses)

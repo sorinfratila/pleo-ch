@@ -4,8 +4,16 @@ import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
 import { Select, Store } from '@ngxs/store';
 import { ExpenseState } from 'src/app/store/expense.state';
-import { GetExpenses, SetTotalExpenses, SetFilterValue, SetFilterType } from 'src/app/store/expense.actions';
+import {
+  GetExpenses,
+  SetTotalExpenses,
+  SetFilterValue,
+  SetFilterType,
+  SetExpenses,
+  SetCurrentPage,
+} from 'src/app/store/expense.actions';
 import { takeUntil, filter } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-filter',
@@ -13,19 +21,25 @@ import { takeUntil, filter } from 'rxjs/operators';
   styleUrls: ['./filter.component.scss'],
 })
 export class FilterComponent implements OnInit, OnDestroy {
+  /** total expenses from BE */
   @Input() totalEntries: number;
-  @Output() filterChange = new EventEmitter<any>();
 
   destroy$: Subject<any>;
 
-  expenses$: Subscription;
-  filterValues: any;
+  /** keeps the total of expenses when filtering */
+  expenses: Expense[];
+
+  /** the array of filter values generated from BE data */
+  filterValues: any[];
+
+  /** the static array of filters types based on the BE data */
   filterTypes: any[];
-  date: Set<any>; // holds all the years found
-  currency: Set<any>; // holds all the currencies found
+
+  date: Set<any>; // holds all the years found in DB expenses
+  currency: Set<any>; // holds all the currencies found in DB expenses
   selectedProp: string; // used for notifying overview component which property is selected
 
-  constructor(private expensesService: ExpensesService, private store: Store) {
+  constructor(private store: Store, private expensesService: ExpensesService, private toast: ToastrService) {
     this.destroy$ = new Subject<any>();
     this.date = new Set();
     this.currency = new Set();
@@ -38,36 +52,33 @@ export class FilterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('totalEntries', this.totalEntries);
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
-    // this.expenses$ = this.expensesService.getAllExpenses({ limit: this.totalEntries }).subscribe({
-    //   next: result => {
-    //     const { expenses } = result;
-    //     // getting all the Years and all the currencies from all entries
-    //     expenses.forEach((ex: Expense) => {
-    //       this.date.add(new Date(ex.date).getFullYear());
-    //       this.currency.add(ex.amount.currency);
-    //     });
-    //   },
-    // });
   }
 
+  /**
+   * get all expenses for filterting
+   * set up date Set and currency Set
+   */
   private getAllExpenses({ limit, offset }) {
-    this.store
-      .dispatch(new GetExpenses({ limit, offset }))
+    this.expensesService
+      .getExpenses({ limit, offset })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        const {
-          expenses: { expenses },
-        } = state;
-        expenses.forEach((ex: Expense) => {
-          this.date.add(new Date(ex.date).getFullYear());
-          this.currency.add(ex.amount.currency);
-        });
+      .subscribe({
+        next: result => {
+          const { expenses } = result;
+
+          this.expenses = expenses;
+          expenses.forEach((ex: Expense) => {
+            this.date.add(new Date(ex.date).getFullYear());
+            this.currency.add(ex.amount.currency);
+          });
+        },
+        error: err => this.toast.error(err.message),
       });
   }
 
   ngOnDestroy(): void {
-    if (this.expenses$) this.expenses$.unsubscribe();
     if (this.destroy$) {
       this.destroy$.next();
       this.destroy$.complete();
@@ -79,8 +90,38 @@ export class FilterComponent implements OnInit, OnDestroy {
       target: { value: filterValue },
     } = ev;
 
-    this.store.dispatch(new SetFilterValue(filterValue));
-    // this.filterChange.emit({ selectedProp: this.selectedProp, filter: value });
+    let filteredExpenses = [];
+
+    switch (this.selectedProp) {
+      case 'currency': {
+        filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
+        break;
+      }
+
+      case 'date': {
+        filteredExpenses = this.expenses.filter((ex: Expense) => {
+          const year = new Date(ex.date).getFullYear();
+          return year === Number(filterValue);
+        });
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+
+    this.store.dispatch([
+      new SetFilterValue(filterValue),
+      filteredExpenses.length ? new SetExpenses(filteredExpenses) : new GetExpenses(),
+    ]);
+
+    if (filteredExpenses.length) {
+      // if there is an active filter
+      // setting totaExpenses to 1 to force only one page in the pagination footer
+      // also selecting the first page in case there was another one selected
+      this.store.dispatch([new SetTotalExpenses(1), new SetCurrentPage(1)]);
+    }
   };
 
   public onFilterTypeChange = (ev: any) => {
@@ -89,17 +130,14 @@ export class FilterComponent implements OnInit, OnDestroy {
     } = ev;
 
     this.store.dispatch(new SetFilterType(filterType));
-
     this.selectedProp = filterType;
 
     if (filterType !== 'default') {
-      this.filterValues = Array.from(this[filterType].values()).map(val => {
-        return { value: val, name: val };
-      });
+      this.filterValues = Array.from(this[filterType].values()).map(val => ({ value: val, name: val }));
       this.filterValues.unshift({ value: 'default', name: 'All entries' });
     } else {
       this.filterValues = [];
-      this.filterChange.emit({ selectedProp: this.selectedProp, filter: filterType });
     }
+    this.store.dispatch(new GetExpenses());
   };
 }

@@ -4,29 +4,27 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class TranslationService {
+  /** keeps the translations object */
   translations: any;
-  langCode: string;
+
   constructor(private http: HttpClient) {
-    this.translations = Object.create(null);
-    this.langCode = 'en'; // default
+    this.translations = Object.create(null); // making an empty object
   }
 
-  getLanguageJSON(lang: string): Promise<any> {
-    return this.http.get<any>(`/assets/i18n/${lang}.json`).toPromise();
+  /**
+   * gets the local JSON file associated with a language code
+   * @param langCode the language code to change to; eg: 'en'
+   */
+  public getLanguageJSON(langCode: string): Promise<any> {
+    return this.http.get<any>(`/assets/i18n/${langCode}.json`).toPromise();
   }
 
-  public setLangObj(lang: any, code: string): void {
-    this.translations = lang;
-    this.langCode = code;
-  }
-
+  /**
+   * setting the new translations object every time the language is updated
+   * @param payload the new translations object
+   */
   public setLanguageJSON(payload: any): void {
-    console.log('in i18n service - translations OBJ', payload);
     this.translations = payload;
-  }
-
-  public getLangObj(): any {
-    return this.translations;
   }
 
   /**

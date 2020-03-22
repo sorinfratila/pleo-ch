@@ -6,9 +6,9 @@
     </select>
   </div>
   <div class="select__container" *ngIf="filterValues.length">
-    <label for="filter">Value: </label>
-    <select name="filter" class="select" (change)="onFilterValueChange($event)">
-      <option class="option" [value]="filter.value" *ngFor="let filter of filterValues">{{ filter.name }}</option>
+    <label for="value">Value: </label>
+    <select name="value" class="select" (change)="onFilterValueChange($event)">
+      <option class="option" [value]="value.value" *ngFor="let value of filterValues">{{ value.name }}</option>
     </select>
   </div>
 </section>

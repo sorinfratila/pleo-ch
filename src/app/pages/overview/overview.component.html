@@ -6,12 +6,12 @@
           <option class="option" [value]="lang.value" *ngFor="let lang of langs">{{ lang.name }}</option>
         </select>
       </div>
-      <section class="filters" *ngIf="!isLoading">
+      <section class="filters" *ngIf="(totalExpenses$ | async) && !isLoading">
         <app-filter (filterChange)="onFilterChange($event)" [totalEntries]="totalExpenses$ | async"></app-filter>
       </section>
     </header>
     <section class="container" *ngIf="!isLoading">
-      <div class="list" *ngIf="innerWidth < 1400; else table">
+      <ul class="list" *ngIf="innerWidth < 1400; else table">
         <!-- container for the list of expenses with each row being an expense -->
         <app-expense
           *ngFor="let expense of expenses$ | async; let j = index"
@@ -19,7 +19,7 @@
           (addReceipt)="onAddReceipt(j, $event)"
           (addComment)="onAddComment(j, $event)"
         ></app-expense>
-      </div>
+      </ul>
       <ng-template #table>
         <!-- the table to show when the screen is big enough -->
         <section class="table__container">
