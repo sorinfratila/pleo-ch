@@ -1,12 +1,18 @@
 <section>
   <div class="select__container">
-    <label for="filterType">{{ 'Filter' | tr: 'appFilter' }}:</label>
+    <label for="filterType">{{ 'Filter' | tr: 'appFilterType' }}:</label>
     <select name="filterType" class="select" (change)="onFilterTypeChange($event)">
-      <option class="option" [value]="type.value" *ngFor="let type of filterTypes">{{ type.name }}</option>
+      <option
+        class="option"
+        [selected]="(filterType$ | async) === type.value"
+        [value]="type.value"
+        *ngFor="let type of filterTypes"
+        >{{ type.name }}</option
+      >
     </select>
   </div>
   <div class="select__container" *ngIf="filterValues.length">
-    <label for="value">Value: </label>
+    <label for="value">{{ 'Value' | tr: 'appFilterValue' }}:</label>
     <select name="value" class="select" (change)="onFilterValueChange($event)">
       <option class="option" [value]="value.value" *ngFor="let value of filterValues">{{ value.name }}</option>
     </select>

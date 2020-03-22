@@ -4,6 +4,7 @@ import { ExpensesService } from 'src/app/services/expenses.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Expense } from 'src/app/models/Expense';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'app-add-image',
@@ -21,6 +22,7 @@ export class AddImageComponent {
     private expenseService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
+    private store: Store,
   ) {
     this.imageURL = '';
     this.progress = 0;
@@ -32,14 +34,18 @@ export class AddImageComponent {
   }
 
   processReceipt(receipt: any) {
-    const file: File = receipt.files[0];
-    const reader = new FileReader();
+    try {
+      const file: File = receipt.files[0];
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      this.imageURL = reader.result as string;
-      this.CDR.detectChanges();
-    };
-    reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imageURL = reader.result as string;
+        this.CDR.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      throw e;
+    }
   }
 
   uploadReceipt(receipt: any) {
@@ -60,7 +66,9 @@ export class AddImageComponent {
           }
         }
       },
-      error: errorMsg => this.toast.error(errorMsg),
+      error: error => {
+        throw error;
+      },
     });
   }
 }

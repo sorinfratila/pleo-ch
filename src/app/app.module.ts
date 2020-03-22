@@ -4,7 +4,7 @@ import { AppComponent } from './root/app.component';
 import { components } from './app.components';
 import { imports } from './app.imports';
 import { pipes } from './app.pipes';
-import { MyErrorHandler } from 'src/utils/global-error-handler';
+import { GlobalErrorHandler } from 'src/utils/global-error-handler';
 
 @NgModule({
   declarations: [components, pipes],
@@ -12,7 +12,7 @@ import { MyErrorHandler } from 'src/utils/global-error-handler';
   providers: [
     {
       provide: ErrorHandler,
-      useClass: MyErrorHandler,
+      useClass: GlobalErrorHandler,
     },
   ],
   bootstrap: [AppComponent],

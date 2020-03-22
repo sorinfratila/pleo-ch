@@ -1,16 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
-import { Subscription, Subject, Observable } from 'rxjs';
-import { takeUntil, take, first, map, tap, withLatestFrom } from 'rxjs/operators';
-import { ExpensesService } from 'src/app/services/expenses.service';
-import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
 import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/add-comment-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
-import { TranslationService } from 'src/app/services/translation.service';
 import { Store, Select } from '@ngxs/store';
-import { GetExpenses, SetCurrentPage, GetLanguageJSON, SetLanguageCode } from 'src/app/store/expense.actions';
-import { ExpensesStateModel, ExpenseState } from 'src/app/store/expense.state';
+import { SetLanguageCode, UpdateExpense } from 'src/app/store/expense.actions';
+import { ExpenseState } from 'src/app/store/expense.state';
 
 @Component({
   selector: 'app-overview',
@@ -18,42 +14,32 @@ import { ExpensesStateModel, ExpenseState } from 'src/app/store/expense.state';
   styleUrls: ['./overview.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OverviewComponent implements OnInit, OnDestroy {
-  destroy$ = new Subject<any>();
-  filteredExpenses$: Subscription;
-  expenses: Expense[] = [];
-  totalEntries: number;
-  nrOfPages: any;
-  filter: string;
+export class OverviewComponent {
+  /** used to keep track of window.innerWidth for responsiveness */
   innerWidth: number;
+
+  /** to load the page again after language update */
   isLoading: boolean;
+
+  /** columns array for the custom table */
   tableColumns: any[];
+
+  /** languages array */
   langs: any[];
 
+  /** observing the expenses from Store */
   @Select(ExpenseState.getExpenses)
   public expenses$: Observable<Expense[]>;
 
+  /** observing the total expenses number */
   @Select(ExpenseState.getTotalExpenses)
   public totalExpenses$: Observable<number>;
 
-  @Select(ExpenseState.getCurrentPage)
-  public pagesCount$: Observable<number>;
+  @Select(ExpenseState.getLanguageCode)
+  public languageCode$: Observable<string>;
 
-  public expens$: Observable<Expense[]>;
-
-  constructor(
-    private dialog: MatDialog,
-    private expensesService: ExpensesService,
-    private toast: ToastrService,
-    private CDR: ChangeDetectorRef,
-    private i18n: TranslationService,
-    private store: Store,
-  ) {
+  constructor(private dialog: MatDialog, private store: Store, private CDR: ChangeDetectorRef) {
     this.innerWidth = window.innerWidth;
-    this.totalEntries = 0;
-    this.nrOfPages = { amount: 0 };
-    this.filter = 'default';
-    // this.isLoading = true;
     this.langs = [
       { value: 'en', name: 'EN' },
       { value: 'ro', name: 'RO' },
@@ -61,9 +47,9 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.tableColumns = [
       { value: 'appFirst', name: 'First Name', width: 90 },
       { value: 'appLast', name: 'Last Name', width: 100 },
-      { value: 'appDate', name: 'Date', width: 85 },
       { value: 'appValue', name: 'Value', width: 80 },
       { value: 'appCurrency', name: 'Currency', width: 70 },
+      { value: 'appDate', name: 'Date', width: 85 },
       { value: 'appMerchant', name: 'Merchant', width: 100 },
       { value: 'appReceipts', name: 'Receipts', width: 120 },
       { value: 'appComment', name: 'Comment', width: 120 },
@@ -78,111 +64,17 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.innerWidth = event.target.innerWidth;
   }
 
-  ngOnInit() {}
-
-  ngOnDestroy(): void {
-    if (this.destroy$) {
-      this.destroy$.next();
-      this.destroy$.complete();
-    }
-  }
-
-  // private getContent({ limit, offset }) {
-  //   this.store
-  //     .dispatch(new GetExpenses({ limit, offset }))
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe(state => {
-  //       // this.expenses =
-  //     });
-  // }
-
   /**
-   *
-   * @param obj contains the limit and offset props for pagination
+   * @param expense - the expense to add the comment to
+   * @param ev - the possible event if the methd call is comming from the Expense component
    */
-  // private subscribeToExpenses(obj?: any) {
-  //   this.expenses$ = this.expensesService
-  //     .getExpenses(obj)
-  //     .pipe(first())
-  //     .subscribe({
-  //       next: (result: any) => {
-  //         const { total, expenses } = result;
-  //         this.totalEntries = total;
-  //         this.nrOfPages = { amount: total };
-  //         this.expenses = this.appendProp(expenses);
-
-  //         this.CDR.detectChanges();
-  //       },
-  //       error: err => this.toast.error(err),
-  //     });
-  // }
-
-  // add isOpen prop to the expenses for accordion control
-  private appendProp = (list: Expense[]) => {
-    return list.map((exp: Expense) => {
-      return { ...exp, isOpen: false };
-    });
-  };
-
-  public onFilterChange = (obj: any) => {
-    const { filter, selectedProp } = obj;
-    this.filter = filter;
-    if (filter !== 'default') {
-      // this.unsubscribeExpense.next();
-      // this.unsubscribeExpense.complete();
-      this.filteredExpenses$ = this.expensesService
-        .getAllExpenses({ limit: this.totalEntries })
-        .pipe(first())
-        .subscribe({
-          next: res => {
-            const { total, expenses } = res;
-            this.totalEntries = total;
-
-            // filtering by CURRENCY
-            if (selectedProp === 'currency') {
-              this.expenses = expenses.filter((ex: Expense) => ex.amount.currency === filter);
-            }
-
-            // filtering by DATE
-            if (selectedProp === 'date') {
-              this.expenses = expenses.filter((ex: Expense) => {
-                const year = new Date(ex.date).getFullYear();
-                return year === Number(filter);
-              });
-            }
-
-            this.nrOfPages = { amount: 1 }; // if filtering, set page to 1 => showing all result on one page
-            this.CDR.detectChanges();
-          },
-          error: err => this.toast.error(err),
-        });
-    } else {
-      // if default filter, show normal results with pagination
-      // this.unsubscribeFiltered.next();
-      // this.subscribeToExpenses();
-    }
-  };
-
-  public onPageChange = (page: number) => {
-    if (this.filter === 'default') {
-      // only update when no filter is applied
-      // currently only one page for the filtered entries
-      // this.unsubscribeFiltered.next();
-      const payload = { limit: 25, offset: (page - 1) * 25 };
-      this.store.dispatch([new GetExpenses(payload), new SetCurrentPage(page)]);
-      // this.subscribeToExpenses(obj);
-    }
-  };
-
-  onAddComment = (index: number, ev?: any) => {
+  onAddComment = (expense: Expense, ev?: any) => {
     let isopen = false;
     if (ev) {
       const { ev: event, isOpen } = ev;
       event.stopPropagation();
       isopen = isOpen;
     }
-
-    const expense = this.expenses[index];
 
     const dialogRef = this.dialog.open(AddCommentDialogComponent, {
       panelClass: 'dialog-container',
@@ -193,15 +85,16 @@ export class OverviewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((res?: Expense) => {
       if (res) {
         res.isOpen = isopen;
-        const expensesCopy = [...this.expenses];
-        expensesCopy.splice(index, 1, res);
-        this.expenses = expensesCopy;
-        this.CDR.detectChanges();
+        this.store.dispatch(new UpdateExpense(res));
       }
     });
   };
 
-  onAddReceipt = (index: number, ev?: any) => {
+  /**
+   * @param expense - the expense to add the receipt to
+   * @param ev - the possible event if the methd call is comming from the Expense component
+   */
+  onAddReceipt = (expense: Expense, ev?: any) => {
     let isopen = false;
     if (ev) {
       const { ev: event, isOpen } = ev;
@@ -209,7 +102,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       isopen = isOpen;
     }
 
-    const expense = this.expenses[index];
+    // const expense = this.expenses[index];
     const dialogRef = this.dialog.open(AddImageComponent, {
       panelClass: 'dialog-container',
       backdropClass: 'backdrop-container',
@@ -219,24 +112,23 @@ export class OverviewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((res?: Expense) => {
       if (res) {
         res.isOpen = isopen;
-        const expensesCopy = [...this.expenses];
-        expensesCopy.splice(index, 1, res);
-        this.expenses = expensesCopy;
-        this.CDR.detectChanges();
+        this.store.dispatch(new UpdateExpense(res));
       }
     });
   };
 
-  public onLanguageChange = async (event: any) => {
-    this.isLoading = true;
+  public onLanguageChange = (event: any) => {
     const {
       target: { value: langCode },
     } = event;
 
     this.store.dispatch(new SetLanguageCode(langCode));
+    this.isLoading = true;
+
+    /** setting timeout to ensure the page reloads with the new translations */
     setTimeout(() => {
       this.isLoading = false;
       this.CDR.detectChanges();
-    }, 30);
+    }, 20);
   };
 }

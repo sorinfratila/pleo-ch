@@ -6,8 +6,6 @@ export enum ActionsType {
   GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
   TOGGLE_EXPENSE = '[Expense] ToggleExpense',
   UPDATE_EXPENSE = '[Expense] UpdateExpense',
-  ADD_EXPENSE_COMMENT = '[Expense] AddComment',
-  ADD_EXPENSE_RECEIPT = '[Expense] AddReceipt',
   SET_EXPENSE_FILTER_TYPE = '[Expense] SetFilterType',
   SET_EXPENSE_FILTER_VALUE = '[Expense] SetFilterValue',
   SET_LANGUAGE_CODE = '[Expense] SetLanguageCode',
@@ -25,16 +23,6 @@ export class SetExpenses {
   constructor(public expenses: Expense[]) {}
 }
 
-export class AddComment {
-  public static readonly type = ActionsType.ADD_EXPENSE_COMMENT;
-  constructor(public payload: { comment: string; expenseId: string }) {}
-}
-
-export class AddReceipt {
-  public static readonly type = ActionsType.ADD_EXPENSE_RECEIPT;
-  constructor(public payload: { receipt: File; expenseId: string }) {}
-}
-
 export class SetFilterType {
   public static readonly type = ActionsType.SET_EXPENSE_FILTER_TYPE;
   constructor(public filterType: string) {}
@@ -47,7 +35,7 @@ export class SetFilterValue {
 
 export class SetLanguageCode {
   public static readonly type = ActionsType.SET_LANGUAGE_CODE;
-  constructor(public lang: string) {}
+  constructor(public langCode: string) {}
 }
 
 export class GetLanguageJSON {

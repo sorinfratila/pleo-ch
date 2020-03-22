@@ -27,7 +27,7 @@ main {
       width: 70%;
     }
 
-    .header {
+    header {
       width: 100%;
       display: flex;
       justify-content: space-between;
@@ -63,11 +63,16 @@ main {
         width: 100%;
         max-width: 1020px;
         overflow: hidden;
-        // display: flex;
         margin: 0 auto;
-        // justify-content: center;
-        // position: relative;
       }
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem 0;
+      width: 100%;
     }
   }
 }

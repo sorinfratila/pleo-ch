@@ -1,9 +1,8 @@
-import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
-import { Subscription, Observable, Subject } from 'rxjs';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
-import { Select, Store } from '@ngxs/store';
-import { ExpenseState } from 'src/app/store/expense.state';
+import { Store, Select } from '@ngxs/store';
 import {
   GetExpenses,
   SetTotalExpenses,
@@ -12,8 +11,9 @@ import {
   SetExpenses,
   SetCurrentPage,
 } from 'src/app/store/expense.actions';
-import { takeUntil, filter } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { ExpenseState } from 'src/app/store/expense.state';
 
 @Component({
   selector: 'app-filter',
@@ -37,7 +37,13 @@ export class FilterComponent implements OnInit, OnDestroy {
 
   date: Set<any>; // holds all the years found in DB expenses
   currency: Set<any>; // holds all the currencies found in DB expenses
-  selectedProp: string; // used for notifying overview component which property is selected
+  selectedFilterType: string; // keeps track in component which filter is selected
+
+  @Select(ExpenseState.getFilterType)
+  public filterType$: Observable<string>;
+
+  // @Select(ExpenseState.getFilterValue)
+  // public filterValue$: Observable<string>;
 
   constructor(private store: Store, private expensesService: ExpensesService, private toast: ToastrService) {
     this.destroy$ = new Subject<any>();
@@ -52,8 +58,14 @@ export class FilterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('totalEntries', this.totalEntries);
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
+  }
+
+  ngOnDestroy(): void {
+    if (this.destroy$) {
+      this.destroy$.next();
+      this.destroy$.complete();
+    }
   }
 
   /**
@@ -78,13 +90,10 @@ export class FilterComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    if (this.destroy$) {
-      this.destroy$.next();
-      this.destroy$.complete();
-    }
-  }
-
+  /**
+   * on every change in the filter value, update the filteredExpenses array
+   * also dispatching actions to handle all the state updates
+   */
   public onFilterValueChange = (ev: any) => {
     const {
       target: { value: filterValue },
@@ -92,7 +101,7 @@ export class FilterComponent implements OnInit, OnDestroy {
 
     let filteredExpenses = [];
 
-    switch (this.selectedProp) {
+    switch (this.selectedFilterType) {
       case 'currency': {
         filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
         break;
@@ -124,20 +133,23 @@ export class FilterComponent implements OnInit, OnDestroy {
     }
   };
 
+  /**
+   *
+   */
   public onFilterTypeChange = (ev: any) => {
     const {
       target: { value: filterType },
     } = ev;
 
-    this.store.dispatch(new SetFilterType(filterType));
-    this.selectedProp = filterType;
+    this.selectedFilterType = filterType;
 
     if (filterType !== 'default') {
       this.filterValues = Array.from(this[filterType].values()).map(val => ({ value: val, name: val }));
+
+      // adding the default values always the first array item
       this.filterValues.unshift({ value: 'default', name: 'All entries' });
-    } else {
-      this.filterValues = [];
-    }
-    this.store.dispatch(new GetExpenses());
+    } else this.filterValues = [];
+
+    this.store.dispatch([new SetFilterType(filterType), new GetExpenses()]);
   };
 }

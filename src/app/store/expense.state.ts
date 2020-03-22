@@ -1,11 +1,9 @@
 import { Expense } from '../models/Expense';
-import { State, Action, StateContext, Selector, NgxsOnInit } from '@ngxs/store';
+import { State, Action, StateContext, Selector, NgxsOnInit, NgxsSimpleChange } from '@ngxs/store';
 import { ExpensesService } from '../services/expenses.service';
 import { TranslationService } from '../services/translation.service';
 import {
   GetExpenses,
-  AddComment,
-  AddReceipt,
   SetFilterType,
   SetFilterValue,
   UpdateExpense,
@@ -17,7 +15,6 @@ import {
 } from './expense.actions';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 
 export class ExpensesStateModel {
   expenses: Expense[];
@@ -45,11 +42,7 @@ export class ExpensesStateModel {
 })
 @Injectable()
 export class ExpenseState implements NgxsOnInit {
-  constructor(
-    private expensesService: ExpensesService,
-    private i18nService: TranslationService,
-    private toast: ToastrService,
-  ) {}
+  constructor(private expensesService: ExpensesService, private i18nService: TranslationService) {}
   @Selector()
   static getExpenses(state: ExpensesStateModel): Expense[] {
     return state.expenses;
@@ -71,35 +64,58 @@ export class ExpenseState implements NgxsOnInit {
   }
 
   @Selector()
-  static getFilterValue(state: ExpensesStateModel): any[] | string {
-    if (state.filter.value.length === 0) return 'No filter type selected';
+  static getFilterValue(state: ExpensesStateModel): string {
     return state.filter.value;
   }
 
   @Selector()
-  static getLanguage(state: ExpensesStateModel) {
+  static getLanguageCode(state: ExpensesStateModel) {
     return state.langCode;
   }
 
-  public ngxsOnInit({ dispatch }: StateContext<ExpensesStateModel>): void {
-    dispatch([GetExpenses, GetLanguageJSON]);
+  public ngxsOnInit({ dispatch, setState, getState, patchState }: StateContext<ExpensesStateModel>): void {
+    const localState = localStorage.getItem('state');
+    const state = getState();
+
+    if (localState && JSON.parse(localState).filter.value !== 'default') {
+      // if we already saved a local state, get that state
+      const savedState = JSON.parse(localState);
+      setState({
+        ...state,
+        ...savedState,
+        filter: {
+          type: {
+            ...state.filter,
+            type: 'default',
+          },
+        },
+      });
+    } else {
+      // initialize state
+
+      dispatch([GetExpenses, GetLanguageJSON]);
+    }
+  }
+
+  public ngxsOnChanges(change: NgxsSimpleChange) {
+    if (change) {
+      const { currentValue, previousValue } = change;
+      if (previousValue && currentValue) {
+        // saving state on every change to localStorage for recovery
+        console.log('currentValue', currentValue);
+        localStorage.setItem('state', JSON.stringify(currentValue));
+      }
+    }
   }
 
   @Action(GetExpenses)
-  getExpenses(ctx: StateContext<ExpensesStateModel>, action: GetExpenses) {
+  getExpenses({ patchState, dispatch }: StateContext<ExpensesStateModel>, action: GetExpenses) {
     return this.expensesService.getExpenses(action.payload).pipe(
       map((getExpensesResponse: any) => {
         const { expenses, total } = getExpensesResponse;
-        const newExpenses = expenses.map((expense: Expense) => {
-          // patching each expense with isOpen to handle expense toggling
-          return {
-            ...expense,
-            isOpen: false,
-          };
-        });
 
-        ctx.patchState({ expenses: newExpenses });
-        ctx.dispatch(new SetTotalExpenses(total));
+        patchState({ expenses });
+        dispatch(new SetTotalExpenses(total));
       }),
     );
   }
@@ -114,16 +130,6 @@ export class ExpenseState implements NgxsOnInit {
     patchState({ totalExpenses: total });
   }
 
-  @Action(AddComment)
-  addComment(action: AddComment) {
-    return this.expensesService.uploadComment(action.payload);
-  }
-
-  @Action(AddReceipt)
-  addReceipt(action: AddReceipt) {
-    return this.expensesService.uploadReceipt(action.payload);
-  }
-
   @Action(UpdateExpense)
   updateExpense(ctx: StateContext<ExpensesStateModel>, action: UpdateExpense) {
     const { expenses } = ctx.getState();
@@ -133,7 +139,11 @@ export class ExpenseState implements NgxsOnInit {
     } = action;
     const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === id);
     if (expenseToUpdateIndex !== -1) {
-      const expensesCopy = expenses;
+      // if expense exists,
+      // copy the state expenses,
+      // splice the updated expense in
+      // and patch state
+      const expensesCopy = [...expenses];
       expensesCopy.splice(expenseToUpdateIndex, 1, expense);
       ctx.patchState({
         expenses: expensesCopy,
@@ -164,8 +174,8 @@ export class ExpenseState implements NgxsOnInit {
   }
 
   @Action(SetLanguageCode)
-  SetLanguageCode({ patchState, dispatch }: StateContext<ExpensesStateModel>, { lang }: SetLanguageCode) {
-    patchState({ langCode: lang });
+  setLanguageCode({ patchState, dispatch }: StateContext<ExpensesStateModel>, { langCode }: SetLanguageCode) {
+    patchState({ langCode });
 
     return dispatch(new GetLanguageJSON());
   }
@@ -173,11 +183,13 @@ export class ExpenseState implements NgxsOnInit {
   @Action(GetLanguageJSON)
   async getLanguageJSON({ getState }: StateContext<ExpensesStateModel>) {
     const { langCode } = getState();
+
     try {
       const langObj = await this.i18nService.getLanguageJSON(langCode);
       this.i18nService.setLanguageJSON(langObj);
     } catch (e) {
-      this.toast.error(e.message);
+      // errors are catched by the global error handler
+      throw e;
     }
   }
 
@@ -185,21 +197,4 @@ export class ExpenseState implements NgxsOnInit {
   setCurrentPage({ patchState }: StateContext<ExpensesStateModel>, { currentPage }: SetCurrentPage) {
     patchState({ currentPage });
   }
-
-  // @Action(ToggleExpense)
-  // toggleExpense(ctx: StateContext<ExpensesStateModel>, action: ToggleExpense) {
-  //   const { expenses } = ctx.getState();
-  //   const {
-  //     expense: { id },
-  //   } = action;
-
-  //   const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === id);
-  //   if (expenseToUpdateIndex !== -1) {
-  //     const expensesCopy = expenses;
-  //     expensesCopy.splice(expenseToUpdateIndex, 1, expense);
-  //     ctx.patchState({
-  //       expenses: expensesCopy,
-  //     });
-  //   }
-  // }
 }

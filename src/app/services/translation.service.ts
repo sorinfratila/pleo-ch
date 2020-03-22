@@ -15,7 +15,7 @@ export class TranslationService {
    * gets the local JSON file associated with a language code
    * @param langCode the language code to change to; eg: 'en'
    */
-  public getLanguageJSON(langCode: string): Promise<any> {
+  public getLanguageJSON(langCode: string = 'en'): Promise<any> {
     return this.http.get<any>(`/assets/i18n/${langCode}.json`).toPromise();
   }
 
