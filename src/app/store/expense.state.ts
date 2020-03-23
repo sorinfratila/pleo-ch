@@ -64,31 +64,20 @@ export class ExpenseState implements NgxsOnInit {
   }
 
   @Selector()
-  static getFilterValue(state: ExpensesStateModel): string {
-    return state.filter.value;
-  }
-
-  @Selector()
   static getLanguageCode(state: ExpensesStateModel) {
     return state.langCode;
   }
 
-  public ngxsOnInit({ dispatch, setState, getState, patchState }: StateContext<ExpensesStateModel>): void {
+  public ngxsOnInit({ dispatch, setState, getState }: StateContext<ExpensesStateModel>): void {
     const localState = localStorage.getItem('state');
     const state = getState();
 
-    if (localState && JSON.parse(localState).filter.value !== 'default') {
+    if (localState && JSON.parse(localState).filter.value === 'default') {
       // if we already saved a local state, get that state
       const savedState = JSON.parse(localState);
       setState({
         ...state,
         ...savedState,
-        filter: {
-          type: {
-            ...state.filter,
-            type: 'default',
-          },
-        },
       });
     } else {
       // initialize state
@@ -102,7 +91,6 @@ export class ExpenseState implements NgxsOnInit {
       const { currentValue, previousValue } = change;
       if (previousValue && currentValue) {
         // saving state on every change to localStorage for recovery
-        console.log('currentValue', currentValue);
         localStorage.setItem('state', JSON.stringify(currentValue));
       }
     }
@@ -188,7 +176,7 @@ export class ExpenseState implements NgxsOnInit {
       const langObj = await this.i18nService.getLanguageJSON(langCode);
       this.i18nService.setLanguageJSON(langObj);
     } catch (e) {
-      // errors are catched by the global error handler
+      // errors are caught by the global error handler
       throw e;
     }
   }

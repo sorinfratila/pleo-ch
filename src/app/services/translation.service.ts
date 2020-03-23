@@ -8,7 +8,9 @@ export class TranslationService {
   translations: any;
 
   constructor(private http: HttpClient) {
-    this.translations = Object.create(null); // making an empty object
+    this.translations = localStorage.getItem('translations')
+      ? JSON.parse(localStorage.getItem('translations')) // get existing translations object
+      : Object.create(null); // making an empty object
   }
 
   /**
@@ -25,6 +27,7 @@ export class TranslationService {
    */
   public setLanguageJSON(payload: any): void {
     this.translations = payload;
+    localStorage.setItem('translations', JSON.stringify(payload));
   }
 
   /**

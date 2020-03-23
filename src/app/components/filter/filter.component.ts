@@ -39,11 +39,9 @@ export class FilterComponent implements OnInit, OnDestroy {
   currency: Set<any>; // holds all the currencies found in DB expenses
   selectedFilterType: string; // keeps track in component which filter is selected
 
+  /** observing the filterType to preselect in case of page change/page refresh */
   @Select(ExpenseState.getFilterType)
   public filterType$: Observable<string>;
-
-  // @Select(ExpenseState.getFilterValue)
-  // public filterValue$: Observable<string>;
 
   constructor(private store: Store, private expensesService: ExpensesService, private toast: ToastrService) {
     this.destroy$ = new Subject<any>();
@@ -93,6 +91,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   /**
    * on every change in the filter value, update the filteredExpenses array
    * also dispatching actions to handle all the state updates
+   * filter values are dynamically generated
    */
   public onFilterValueChange = (ev: any) => {
     const {
@@ -134,7 +133,8 @@ export class FilterComponent implements OnInit, OnDestroy {
   };
 
   /**
-   *
+   * handle logic for when changing the filter type - eg: 'default', 'date' or 'currency'
+   * these filters are static
    */
   public onFilterTypeChange = (ev: any) => {
     const {
@@ -150,6 +150,6 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.filterValues.unshift({ value: 'default', name: 'All entries' });
     } else this.filterValues = [];
 
-    this.store.dispatch([new SetFilterType(filterType), new GetExpenses()]);
+    this.store.dispatch([new SetFilterType(filterType), new GetExpenses(), new SetCurrentPage(1)]);
   };
 }
