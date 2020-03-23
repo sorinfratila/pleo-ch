@@ -4,8 +4,6 @@ export enum ActionsType {
   GET_EXPENSES = '[Expense] GetExpenses',
   SET_EXPENSES = '[Expense] SetExpenses',
   GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
-  TOGGLE_EXPENSE = '[Expense] ToggleExpense',
-  UPDATE_EXPENSE = '[Expense] UpdateExpense',
   SET_EXPENSE_FILTER_TYPE = '[Expense] SetFilterType',
   SET_EXPENSE_FILTER_VALUE = '[Expense] SetFilterValue',
   SET_LANGUAGE_CODE = '[Expense] SetLanguageCode',
@@ -25,12 +23,12 @@ export class SetExpenses {
 
 export class SetFilterType {
   public static readonly type = ActionsType.SET_EXPENSE_FILTER_TYPE;
-  constructor(public filterType: string) {}
+  constructor(public filterType: any[]) {}
 }
 
 export class SetFilterValue {
   public static readonly type = ActionsType.SET_EXPENSE_FILTER_VALUE;
-  constructor(public filterValue: string) {}
+  constructor(public filterValue: any[]) {}
 }
 
 export class SetLanguageCode {
@@ -51,14 +49,4 @@ export class SetCurrentPage {
 export class SetTotalExpenses {
   public static readonly type = ActionsType.SET_TOTAL_EXPENSES;
   constructor(public total: number) {}
-}
-
-export class ToggleExpense {
-  public static readonly type = ActionsType.TOGGLE_EXPENSE;
-  constructor(public expense: Expense) {}
-}
-
-export class UpdateExpense {
-  public static readonly type = ActionsType.UPDATE_EXPENSE;
-  constructor(public expense: Expense) {}
 }

@@ -11,7 +11,7 @@ import {
   SetExpenses,
   SetCurrentPage,
 } from 'src/app/store/expense.actions';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, tap, first, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { ExpenseState } from 'src/app/store/expense.state';
 
@@ -30,10 +30,10 @@ export class FilterComponent implements OnInit, OnDestroy {
   expenses: Expense[];
 
   /** the array of filter values generated from BE data */
-  filterValues: any[];
+  // filterValues: any[];
 
   /** the static array of filters types based on the BE data */
-  filterTypes: any[];
+  // filterTypes: any[];
 
   date: Set<any>; // holds all the years found in DB expenses
   currency: Set<any>; // holds all the currencies found in DB expenses
@@ -41,22 +41,27 @@ export class FilterComponent implements OnInit, OnDestroy {
 
   /** observing the filterType to preselect in case of page change/page refresh */
   @Select(ExpenseState.getFilterType)
-  public filterType$: Observable<string>;
+  public filterType$: Observable<any[]>;
+
+  /** observing the filterType to preselect in case of page change/page refresh */
+  @Select(ExpenseState.getFilterValue)
+  public filterValue$: Observable<any[]>;
 
   constructor(private store: Store, private expensesService: ExpensesService, private toast: ToastrService) {
     this.destroy$ = new Subject<any>();
     this.date = new Set();
     this.currency = new Set();
-    this.filterValues = [];
-    this.filterTypes = [
-      { value: 'default', name: 'All entries' },
-      { value: 'date', name: 'Date' },
-      { value: 'currency', name: 'Currency' },
-    ];
+    // this.filterValues = [{ value: 'default', name: 'All entries', selected: true }];
+    // this.filterTypes = [
+    //   { value: 'default', name: 'All entries', selected: true },
+    //   { value: 'date', name: 'Date', selected: false },
+    //   { value: 'currency', name: 'Currency', selected: false },
+    // ];
   }
 
   ngOnInit(): void {
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
+    // this.onFilterValueChange();
   }
 
   ngOnDestroy(): void {
@@ -78,6 +83,8 @@ export class FilterComponent implements OnInit, OnDestroy {
         next: result => {
           const { expenses } = result;
 
+          console.log('expenses', expenses);
+
           this.expenses = expenses;
           expenses.forEach((ex: Expense) => {
             this.date.add(new Date(ex.date).getFullYear());
@@ -93,43 +100,59 @@ export class FilterComponent implements OnInit, OnDestroy {
    * also dispatching actions to handle all the state updates
    * filter values are dynamically generated
    */
-  public onFilterValueChange = (ev: any) => {
+  public onFilterValueChange = (ev?: any) => {
     const {
       target: { value: filterValue },
     } = ev;
-
     let filteredExpenses = [];
 
-    switch (this.selectedFilterType) {
-      case 'currency': {
-        filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
-        break;
+    this.filterValue$.pipe(take(1)).subscribe(filterValues => {
+      const newFilterValues = filterValues.map(filter => {
+        if (filter.value === (this.selectedFilterType === 'currency' ? filterValue : Number(filterValue))) {
+          return {
+            ...filter,
+            selected: true,
+          };
+        }
+        return {
+          ...filter,
+          selected: false,
+        };
+      });
+
+      console.log('newFilterValues', newFilterValues);
+
+      switch (this.selectedFilterType) {
+        case 'currency': {
+          filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
+          break;
+        }
+
+        case 'date': {
+          filteredExpenses = this.expenses.filter((ex: Expense) => {
+            const year = new Date(ex.date).getFullYear();
+            return year === Number(filterValue);
+          });
+          break;
+        }
+
+        default: {
+          break;
+        }
       }
 
-      case 'date': {
-        filteredExpenses = this.expenses.filter((ex: Expense) => {
-          const year = new Date(ex.date).getFullYear();
-          return year === Number(filterValue);
-        });
-        break;
+      this.store.dispatch([
+        new SetFilterValue(newFilterValues),
+        filteredExpenses.length ? new SetExpenses(filteredExpenses) : new GetExpenses(),
+      ]);
+
+      if (filteredExpenses.length) {
+        // if there is an active filter
+        // setting totaExpenses to 1 to force only one page in the pagination footer
+        // also selecting the first page in case there was another one selected
+        this.store.dispatch([new SetTotalExpenses(1), new SetCurrentPage(1)]);
       }
-
-      default: {
-        break;
-      }
-    }
-
-    this.store.dispatch([
-      new SetFilterValue(filterValue),
-      filteredExpenses.length ? new SetExpenses(filteredExpenses) : new GetExpenses(),
-    ]);
-
-    if (filteredExpenses.length) {
-      // if there is an active filter
-      // setting totaExpenses to 1 to force only one page in the pagination footer
-      // also selecting the first page in case there was another one selected
-      this.store.dispatch([new SetTotalExpenses(1), new SetCurrentPage(1)]);
-    }
+    });
   };
 
   /**
@@ -140,16 +163,39 @@ export class FilterComponent implements OnInit, OnDestroy {
     const {
       target: { value: filterType },
     } = ev;
+    let newFilterValues = [];
 
     this.selectedFilterType = filterType;
 
-    if (filterType !== 'default') {
-      this.filterValues = Array.from(this[filterType].values()).map(val => ({ value: val, name: val }));
+    this.filterType$.pipe(take(1)).subscribe(filterTypes => {
+      const newFilterTypes = filterTypes.map(filter => {
+        if (filter.value === filterType) {
+          return {
+            ...filter,
+            selected: true,
+          };
+        }
+        return {
+          ...filter,
+          selected: false,
+        };
+      });
 
-      // adding the default values always the first array item
-      this.filterValues.unshift({ value: 'default', name: 'All entries' });
-    } else this.filterValues = [];
+      if (filterType !== 'default') {
+        newFilterValues = Array.from(this[filterType].values()).map(val => ({
+          value: val,
+          name: val,
+          selected: false,
+        }));
+      }
 
-    this.store.dispatch([new SetFilterType(filterType), new GetExpenses(), new SetCurrentPage(1)]);
+      newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true });
+      this.store.dispatch([
+        new SetFilterType(newFilterTypes),
+        new SetFilterValue(newFilterValues),
+        new GetExpenses(),
+        new SetCurrentPage(1),
+      ]);
+    });
   };
 }

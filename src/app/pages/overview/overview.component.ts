@@ -5,7 +5,7 @@ import { AddCommentDialogComponent } from 'src/app/dialogs/add-comment-dialog/ad
 import { MatDialog } from '@angular/material/dialog';
 import { AddImageComponent } from 'src/app/dialogs/add-image/add-image.component';
 import { Store, Select } from '@ngxs/store';
-import { SetLanguageCode, UpdateExpense } from 'src/app/store/expense.actions';
+import { SetLanguageCode, SetExpenses } from 'src/app/store/expense.actions';
 import { ExpenseState } from 'src/app/store/expense.state';
 
 @Component({
@@ -85,7 +85,21 @@ export class OverviewComponent {
     dialogRef.afterClosed().subscribe((res?: Expense) => {
       if (res) {
         res.isOpen = isopen;
-        this.store.dispatch(new UpdateExpense(res));
+        this.store.selectSnapshot(state => {
+          const {
+            expenses: { expenses },
+          } = state;
+
+          const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
+          if (expenseToUpdateIndex !== -1) {
+            // if expense exists,
+            // copy the state expenses,
+            // splice the updated expense in
+            const expensesCopy = [...expenses];
+            expensesCopy.splice(expenseToUpdateIndex, 1, res);
+            this.store.dispatch(new SetExpenses(expensesCopy));
+          }
+        });
       }
     });
   };
@@ -111,8 +125,23 @@ export class OverviewComponent {
 
     dialogRef.afterClosed().subscribe((res?: Expense) => {
       if (res) {
+        // updating Expenses if action was succesful
         res.isOpen = isopen;
-        this.store.dispatch(new UpdateExpense(res));
+        this.store.selectSnapshot(state => {
+          const {
+            expenses: { expenses },
+          } = state;
+
+          const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
+          if (expenseToUpdateIndex !== -1) {
+            // if expense exists,
+            // copy the state expenses,
+            // splice the updated expense in
+            const expensesCopy = [...expenses];
+            expensesCopy.splice(expenseToUpdateIndex, 1, res);
+            this.store.dispatch(new SetExpenses(expensesCopy));
+          }
+        });
       }
     });
   };

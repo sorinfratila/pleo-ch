@@ -6,7 +6,6 @@ import {
   GetExpenses,
   SetFilterType,
   SetFilterValue,
-  UpdateExpense,
   SetLanguageCode,
   SetCurrentPage,
   GetLanguageJSON,
@@ -19,8 +18,8 @@ import { Injectable } from '@angular/core';
 export class ExpensesStateModel {
   expenses: Expense[];
   filter: {
-    type: string;
-    value: string;
+    type: any[];
+    value: any[];
   };
   langCode: string;
   totalExpenses: number;
@@ -33,8 +32,12 @@ export class ExpensesStateModel {
     expenses: [],
     totalExpenses: 0,
     filter: {
-      type: 'default',
-      value: 'default',
+      type: [
+        { value: 'default', name: 'All entries', selected: true },
+        { value: 'date', name: 'Date', selected: false },
+        { value: 'currency', name: 'Currency', selected: false },
+      ],
+      value: [{ value: 'default', name: 'All entries', selected: true }],
     },
     langCode: 'en',
     currentPage: 1,
@@ -59,8 +62,13 @@ export class ExpenseState implements NgxsOnInit {
   }
 
   @Selector()
-  static getFilterType(state: ExpensesStateModel): string {
+  static getFilterType(state: ExpensesStateModel): any[] {
     return state.filter.type;
+  }
+
+  @Selector()
+  static getFilterValue(state: ExpensesStateModel): any[] {
+    return state.filter.value;
   }
 
   @Selector()
@@ -72,7 +80,7 @@ export class ExpenseState implements NgxsOnInit {
     const localState = localStorage.getItem('state');
     const state = getState();
 
-    if (localState && JSON.parse(localState).filter.value === 'default') {
+    if (localState) {
       // if we already saved a local state, get that state
       const savedState = JSON.parse(localState);
       setState({
@@ -90,6 +98,8 @@ export class ExpenseState implements NgxsOnInit {
     if (change) {
       const { currentValue, previousValue } = change;
       if (previousValue && currentValue) {
+        console.log('state', currentValue);
+
         // saving state on every change to localStorage for recovery
         localStorage.setItem('state', JSON.stringify(currentValue));
       }
@@ -116,27 +126,6 @@ export class ExpenseState implements NgxsOnInit {
   @Action(SetTotalExpenses)
   setTotalExpenses({ patchState }: StateContext<ExpensesStateModel>, { total }: SetTotalExpenses) {
     patchState({ totalExpenses: total });
-  }
-
-  @Action(UpdateExpense)
-  updateExpense(ctx: StateContext<ExpensesStateModel>, action: UpdateExpense) {
-    const { expenses } = ctx.getState();
-    const {
-      expense: { id },
-      expense,
-    } = action;
-    const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === id);
-    if (expenseToUpdateIndex !== -1) {
-      // if expense exists,
-      // copy the state expenses,
-      // splice the updated expense in
-      // and patch state
-      const expensesCopy = [...expenses];
-      expensesCopy.splice(expenseToUpdateIndex, 1, expense);
-      ctx.patchState({
-        expenses: expensesCopy,
-      });
-    }
   }
 
   @Action(SetFilterType)
