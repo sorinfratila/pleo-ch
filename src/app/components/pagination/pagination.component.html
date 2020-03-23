@@ -2,6 +2,6 @@
   class="pointer"
   [ngClass]="{ selected: (currentPage$ | async) === page }"
   (click)="goToPage(page)"
-  *ngFor="let page of pages"
+  *ngFor="let page of pages$ | async"
   >{{ page }}</a
 >

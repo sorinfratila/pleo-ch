@@ -11,6 +11,7 @@ import {
   GetLanguageJSON,
   SetTotalExpenses,
   SetExpenses,
+  SetPages,
 } from './expense.actions';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
@@ -24,6 +25,7 @@ export class ExpensesStateModel {
   langCode: string;
   totalExpenses: number;
   currentPage: number;
+  pages: number[];
 }
 
 @State<ExpensesStateModel>({
@@ -41,6 +43,7 @@ export class ExpensesStateModel {
     },
     langCode: 'en',
     currentPage: 1,
+    pages: [1],
   },
 })
 @Injectable()
@@ -69,6 +72,11 @@ export class ExpenseState implements NgxsOnInit {
   @Selector()
   static getFilterValue(state: ExpensesStateModel): any[] {
     return state.filter.value;
+  }
+
+  @Selector()
+  static getPages(state: ExpensesStateModel): number[] {
+    return state.pages;
   }
 
   @Selector()
@@ -116,6 +124,13 @@ export class ExpenseState implements NgxsOnInit {
         dispatch(new SetTotalExpenses(total));
       }),
     );
+  }
+
+  @Action(SetPages)
+  setPages({ patchState }: StateContext<ExpensesStateModel>, { pages }: SetPages) {
+    patchState({
+      pages,
+    });
   }
 
   @Action(SetExpenses)

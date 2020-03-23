@@ -3,6 +3,8 @@ import { Expense } from '../models/Expense';
 export enum ActionsType {
   GET_EXPENSES = '[Expense] GetExpenses',
   SET_EXPENSES = '[Expense] SetExpenses',
+  // GET_PAGE_COUNT = '[Expense], GetPageCount',
+  SET_PAGES = '[Expense], SetPages',
   GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
   SET_EXPENSE_FILTER_TYPE = '[Expense] SetFilterType',
   SET_EXPENSE_FILTER_VALUE = '[Expense] SetFilterValue',
@@ -19,6 +21,11 @@ export class GetExpenses {
 export class SetExpenses {
   public static readonly type = ActionsType.SET_EXPENSES;
   constructor(public expenses: Expense[]) {}
+}
+
+export class SetPages {
+  public static readonly type = ActionsType.SET_PAGES;
+  constructor(public pages: number[]) {}
 }
 
 export class SetFilterType {

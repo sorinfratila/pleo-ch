@@ -11,17 +11,13 @@ import { ToastrService } from 'ngx-toastr';
 export class ExpensesService {
   baseURL: string;
 
-  constructor(private http: HttpClient, private toast: ToastrService) {
+  constructor(private http: HttpClient) {
     this.baseURL = environment.rootURL;
   }
 
   public getExpenses(payload?: any): Observable<any> {
     const link = payload ? `?limit=${payload.limit}&offset=${payload.offset}` : '';
     return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
-  }
-
-  public getAllExpenses({ limit }): Observable<any> {
-    return this.http.get(`${this.baseURL}/expenses?limit=${limit}&offset=${0}`).pipe(catchError(this.errorHandler));
   }
 
   public uploadReceipt({ receipt, expenseId }): Observable<any> {

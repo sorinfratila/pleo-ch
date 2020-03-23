@@ -4,4 +4,8 @@ section {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  .select__container:first-child {
+    margin-right: 1rem;
+  }
 }

@@ -1,17 +1,17 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, SimpleChanges, OnChanges } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
 import { Store, Select } from '@ngxs/store';
 import {
   GetExpenses,
-  SetTotalExpenses,
   SetFilterValue,
   SetFilterType,
   SetExpenses,
   SetCurrentPage,
+  SetPages,
 } from 'src/app/store/expense.actions';
-import { takeUntil, tap, first, take } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { ExpenseState } from 'src/app/store/expense.state';
 
@@ -29,12 +29,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   /** keeps the total of expenses when filtering */
   expenses: Expense[];
 
-  /** the array of filter values generated from BE data */
-  // filterValues: any[];
-
-  /** the static array of filters types based on the BE data */
-  // filterTypes: any[];
-
+  pages: number[];
   date: Set<any>; // holds all the years found in DB expenses
   currency: Set<any>; // holds all the currencies found in DB expenses
   selectedFilterType: string; // keeps track in component which filter is selected
@@ -51,17 +46,12 @@ export class FilterComponent implements OnInit, OnDestroy {
     this.destroy$ = new Subject<any>();
     this.date = new Set();
     this.currency = new Set();
-    // this.filterValues = [{ value: 'default', name: 'All entries', selected: true }];
-    // this.filterTypes = [
-    //   { value: 'default', name: 'All entries', selected: true },
-    //   { value: 'date', name: 'Date', selected: false },
-    //   { value: 'currency', name: 'Currency', selected: false },
-    // ];
+    this.pages = [];
   }
 
   ngOnInit(): void {
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
-    // this.onFilterValueChange();
+    this.setSelectedFilterType();
   }
 
   ngOnDestroy(): void {
@@ -70,6 +60,22 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.destroy$.complete();
     }
   }
+
+  /**
+   * getting the current selection for the filterType to initialize the selectedFilterType prop
+   */
+  private setSelectedFilterType = () => {
+    this.store.selectSnapshot(state => {
+      const {
+        expenses: {
+          filter: { type },
+        },
+      } = state;
+
+      const selected = type.find((ty: any) => ty.selected);
+      if (selected) this.selectedFilterType = selected.value;
+    });
+  };
 
   /**
    * get all expenses for filterting
@@ -82,8 +88,6 @@ export class FilterComponent implements OnInit, OnDestroy {
       .subscribe({
         next: result => {
           const { expenses } = result;
-
-          console.log('expenses', expenses);
 
           this.expenses = expenses;
           expenses.forEach((ex: Expense) => {
@@ -104,55 +108,48 @@ export class FilterComponent implements OnInit, OnDestroy {
     const {
       target: { value: filterValue },
     } = ev;
-    let filteredExpenses = [];
+    const filteredExpenses = this.getFilteredExpenses(this.selectedFilterType, filterValue);
+    const comparisonValue = this.selectedFilterType === 'currency' ? filterValue : Number(filterValue);
 
     this.filterValue$.pipe(take(1)).subscribe(filterValues => {
       const newFilterValues = filterValues.map(filter => {
-        if (filter.value === (this.selectedFilterType === 'currency' ? filterValue : Number(filterValue))) {
-          return {
-            ...filter,
-            selected: true,
-          };
+        if (filter.value === comparisonValue) {
+          return { ...filter, selected: true };
         }
-        return {
-          ...filter,
-          selected: false,
-        };
+
+        return { ...filter, selected: false };
       });
 
-      console.log('newFilterValues', newFilterValues);
+      this.store.dispatch(new SetFilterValue(newFilterValues));
 
-      switch (this.selectedFilterType) {
-        case 'currency': {
-          filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
-          break;
-        }
-
-        case 'date': {
-          filteredExpenses = this.expenses.filter((ex: Expense) => {
-            const year = new Date(ex.date).getFullYear();
-            return year === Number(filterValue);
-          });
-          break;
-        }
-
-        default: {
-          break;
-        }
-      }
-
-      this.store.dispatch([
-        new SetFilterValue(newFilterValues),
-        filteredExpenses.length ? new SetExpenses(filteredExpenses) : new GetExpenses(),
-      ]);
-
-      if (filteredExpenses.length) {
+      if (filterValue === 'default') {
+        this.store.dispatch(new GetExpenses());
+      } else {
         // if there is an active filter
         // setting totaExpenses to 1 to force only one page in the pagination footer
         // also selecting the first page in case there was another one selected
-        this.store.dispatch([new SetTotalExpenses(1), new SetCurrentPage(1)]);
+        this.store.dispatch([new SetPages([1]), new SetCurrentPage(1), new SetExpenses(filteredExpenses)]);
       }
     });
+  };
+
+  private getFilteredExpenses = (selectedFilterType: string, selectedFilterValue: string) => {
+    switch (selectedFilterType) {
+      case 'currency': {
+        return this.expenses.filter((ex: Expense) => ex.amount.currency === selectedFilterValue);
+      }
+
+      case 'date': {
+        return this.expenses.filter((ex: Expense) => {
+          const year = new Date(ex.date).getFullYear();
+          return year === Number(selectedFilterValue);
+        });
+      }
+
+      default: {
+        return [];
+      }
+    }
   };
 
   /**
@@ -170,15 +167,10 @@ export class FilterComponent implements OnInit, OnDestroy {
     this.filterType$.pipe(take(1)).subscribe(filterTypes => {
       const newFilterTypes = filterTypes.map(filter => {
         if (filter.value === filterType) {
-          return {
-            ...filter,
-            selected: true,
-          };
+          return { ...filter, selected: true };
         }
-        return {
-          ...filter,
-          selected: false,
-        };
+
+        return { ...filter, selected: false };
       });
 
       if (filterType !== 'default') {
@@ -187,6 +179,16 @@ export class FilterComponent implements OnInit, OnDestroy {
           name: val,
           selected: false,
         }));
+      } else {
+        //
+        this.store.selectSnapshot(state => {
+          const {
+            expenses: { totalExpenses },
+          } = state;
+          const pages = this.getPagesArray(totalExpenses);
+
+          this.store.dispatch(new SetPages(pages));
+        });
       }
 
       newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true });
@@ -198,4 +200,18 @@ export class FilterComponent implements OnInit, OnDestroy {
       ]);
     });
   };
+
+  /**
+   * calculates pages array based on the current totalExpenses saved in state
+   * @param totalExpenses total from BE
+   */
+  private getPagesArray(totalExpenses: number): number[] {
+    const pages = [];
+    const pagesCount = Math.ceil(totalExpenses / 25);
+    for (let i = 1; i <= pagesCount; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
 }
