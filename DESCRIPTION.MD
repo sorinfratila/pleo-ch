@@ -8,7 +8,7 @@ In terms of testing, I did implement some unit tests for my state and actions wh
 
 ## How long did it take?
 
-Approximately two weeks. I can see that today there are 13 days since my first commit. Today I have officially finished the implementation, the tests and the build are both passing. I would like to mention that I also have a full time job and I was putting the most hours during the weekend, so I had 4 days of full-time work and I would say these last 2 days as well since my tasks for work are mostly done. During last week and the week before (Wed-Fri) I worked maybe a few hours almost every evening.
+Approximately two weeks. I can see that today(24-03-2020) there are 13 days since my first commit. Today I have officially finished the implementation, the tests and the build are both passing. I would like to mention that I also have a full time job and I was putting the most hours during the weekend, so I had 4 days of full-time work and I would say these last 2 days as well since my tasks for work are mostly done. During last week and the week before (Wed-Fri) I worked maybe a few hours almost every evening.
 
 ## Which part was the hardest to implement?
 
