@@ -84,22 +84,19 @@ export class OverviewComponent {
 
     dialogRef.afterClosed().subscribe((res?: Expense) => {
       if (res) {
+        // updating Expenses if action was succesful
         res.isOpen = isopen;
-        this.store.selectSnapshot(state => {
-          const {
-            expenses: { expenses },
-          } = state;
 
-          const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
-          if (expenseToUpdateIndex !== -1) {
-            // if expense exists,
-            // copy the state expenses,
-            // splice the updated expense in
-            const expensesCopy = [...expenses];
-            expensesCopy.splice(expenseToUpdateIndex, 1, res);
-            this.store.dispatch(new SetExpenses(expensesCopy));
-          }
-        });
+        const expenses = this.getExpensesSnapshot();
+        const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
+        if (expenseToUpdateIndex !== -1) {
+          // if expense exists,
+          // copy the state expenses,
+          // splice the updated expense in
+          const expensesCopy = [...expenses];
+          expensesCopy.splice(expenseToUpdateIndex, 1, res);
+          this.store.dispatch(new SetExpenses(expensesCopy));
+        }
       }
     });
   };
@@ -127,22 +124,28 @@ export class OverviewComponent {
       if (res) {
         // updating Expenses if action was succesful
         res.isOpen = isopen;
-        this.store.selectSnapshot(state => {
-          const {
-            expenses: { expenses },
-          } = state;
 
-          const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
-          if (expenseToUpdateIndex !== -1) {
-            // if expense exists,
-            // copy the state expenses,
-            // splice the updated expense in
-            const expensesCopy = [...expenses];
-            expensesCopy.splice(expenseToUpdateIndex, 1, res);
-            this.store.dispatch(new SetExpenses(expensesCopy));
-          }
-        });
+        const expenses = this.getExpensesSnapshot();
+        const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === res.id);
+        if (expenseToUpdateIndex !== -1) {
+          // if expense exists,
+          // copy the state expenses,
+          // splice the updated expense in
+          const expensesCopy = [...expenses];
+          expensesCopy.splice(expenseToUpdateIndex, 1, res);
+          this.store.dispatch(new SetExpenses(expensesCopy));
+        }
       }
+    });
+  };
+
+  private getExpensesSnapshot = () => {
+    return this.store.selectSnapshot(state => {
+      const {
+        expenses: { expenses },
+      } = state;
+
+      return expenses;
     });
   };
 
@@ -154,7 +157,7 @@ export class OverviewComponent {
     this.store.dispatch(new SetLanguageCode(langCode));
     this.isLoading = true;
 
-    /** setting timeout to ensure the page reloads with the new translations */
+    /** setting timeout as a buffer to ensure the component is initialized again */
     setTimeout(() => {
       this.isLoading = false;
       this.CDR.detectChanges();

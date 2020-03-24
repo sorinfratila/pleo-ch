@@ -96,7 +96,7 @@ export class ExpenseState implements NgxsOnInit {
         ...savedState,
       });
     } else {
-      // initialize state
+      // initialize state and fetch languageJson
 
       dispatch([FetchExpenses, FetchLanguageJSON]);
     }
@@ -173,14 +173,8 @@ export class ExpenseState implements NgxsOnInit {
   @Action(FetchLanguageJSON)
   async getLanguageJSON({ getState }: StateContext<ExpensesStateModel>) {
     const { langCode } = getState();
-
-    try {
-      const langObj = await this.i18nService.getLanguageJSON(langCode);
-      this.i18nService.setLanguageJSON(langObj);
-    } catch (e) {
-      // errors are caught by the global error handler
-      throw e.message;
-    }
+    const langObj = await this.i18nService.getLanguageJSON(langCode);
+    this.i18nService.setLanguageJSON(langObj);
   }
 
   @Action(SetCurrentPage)

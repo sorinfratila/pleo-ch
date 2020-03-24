@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
@@ -139,7 +139,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   };
 
   /**
-   * calculate pages array from totalExpenses state snapshot
+   * generate pages array based on totalExpenses state snapshot
    */
   private getPagesFromSnapshot = () => {
     return this.store.selectSnapshot(state => {
@@ -153,8 +153,8 @@ export class FilterComponent implements OnInit, OnDestroy {
   };
 
   /**
-   * calculates pages array based on the current totalExpenses saved in state
-   * @param totalExpenses total from BE
+   * calculates pages array based on the totalExpenses param from state
+   * @param totalExpenses total entries in the BE
    */
   private getPagesArray(totalExpenses: number): number[] {
     const pages = [];
@@ -166,6 +166,9 @@ export class FilterComponent implements OnInit, OnDestroy {
     return pages;
   }
 
+  /**
+   * generate filteredExpenses array used to show the filtered results instead of normal results
+   */
   private getFilteredExpenses = (selectedFilterType: string, selectedFilterValue: string) => {
     switch (selectedFilterType) {
       case 'currency': {
@@ -193,8 +196,8 @@ export class FilterComponent implements OnInit, OnDestroy {
     const {
       target: { value: filterType },
     } = ev;
-    let newFilterValues = [];
 
+    let newFilterValues = [];
     this.selectedFilterType = filterType;
 
     this.filterType$.pipe(take(1)).subscribe(filterTypes => {
