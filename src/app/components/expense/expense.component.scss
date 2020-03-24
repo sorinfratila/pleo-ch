@@ -1,52 +1,54 @@
 @import '../../../styles/colors.scss';
 @import '../../../styles/helpers.scss';
 
-main {
-  width: 100%;
+header {
+  display: flex;
+  justify-content: space-between;
+  background-color: $white-text;
+  border-radius: 0.5rem;
+  margin-bottom: 0.3rem;
+  color: $black-02;
 
-  .header {
+  .left {
+    @extend .truncate;
     display: flex;
-    justify-content: space-between;
-    background-color: $white-text;
+    align-items: center;
+    font-size: 1.2rem;
     border-radius: 0.5rem;
-    margin-bottom: 0.3rem;
-    color: $black-02;
+    width: 85%;
 
-    .left {
-      @extend .truncate;
+    .content {
+      width: 100%;
       display: flex;
-      align-items: center;
-      font-size: 1.2rem;
-      max-width: 25rem;
-      border-radius: 0.5rem;
-
-      .caret {
-        display: flex;
-        align-items: center;
-      }
-
-      span {
-        padding: 0 0.2rem;
-        font-size: 1.4rem;
-      }
+      justify-content: space-between;
     }
 
-    .right {
+    .caret {
       display: flex;
       align-items: center;
-      justify-content: space-evenly;
+    }
 
-      a {
-        display: flex;
-        align-items: center;
-        line-height: 1.5;
-        padding: 0.5rem;
-      }
+    span {
+      padding: 0 0.2rem;
+      font-size: 1.4rem;
     }
   }
 
-  .accordion__container {
-    padding: 0 1rem;
-    margin-bottom: 0.3rem;
+  .right {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    a {
+      display: flex;
+      align-items: center;
+      line-height: 1.5;
+      padding: 0.5rem;
+    }
   }
+}
+
+.accordion__container {
+  padding: 0 1rem;
+  margin-bottom: 0.3rem;
 }

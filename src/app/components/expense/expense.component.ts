@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
 
 @Component({
@@ -9,14 +9,17 @@ import { Expense } from 'src/app/models/Expense';
 })
 export class ExpenseComponent {
   @Input() expense: Expense;
+
+  // to trigger the method calls from overview components
   @Output() addReceipt = new EventEmitter<any>();
   @Output() addComment = new EventEmitter<any>();
+
   constructor() {}
 
   /**
    * toggle the expense to see/hide details
    */
-  onHeaderPress = (isOpen: boolean) => {
+  onHeaderPress = (isOpen: boolean): void => {
     this.expense = {
       ...this.expense,
       isOpen: !isOpen,
@@ -24,16 +27,16 @@ export class ExpenseComponent {
   };
 
   /**
-   * add image for receipt trigger
+   * add image for receipt emitter
    */
-  onAddReceipt = (ev: MouseEvent) => {
+  onAddReceipt = (ev: MouseEvent): void => {
     this.addReceipt.emit({ ev, isOpen: this.expense.isOpen });
   };
 
   /**
-   * add comment
+   * add comment emitter
    */
-  onAddComment = (ev: MouseEvent) => {
+  onAddComment = (ev: MouseEvent): void => {
     this.addComment.emit({ ev, isOpen: this.expense.isOpen });
   };
 }

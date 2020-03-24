@@ -4,30 +4,41 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class TranslationService {
+  /** keeps the translations object */
   translations: any;
-  langCode: string;
+
   constructor(private http: HttpClient) {
-    this.translations = Object.create(null);
-    this.langCode = 'en'; // default
+    this.translations = localStorage.getItem('translations')
+      ? JSON.parse(localStorage.getItem('translations')) // get existing translations object
+      : Object.create(null); // making an empty object
   }
 
-  getLanguageJSON(lang: string): Promise<any> {
-    return this.http.get<any>(`/assets/i18n/${lang}.json`).toPromise();
+  /**
+   * gets the local JSON file associated with a language code
+   * @param langCode the language code to change to; eg: 'en'
+   */
+  public getLanguageJSON(langCode: string = 'en'): Promise<any> {
+    return this.http.get<any>(`/assets/i18n/${langCode}.json`).toPromise();
   }
 
-  public setLangObj(lang: any, code: string): void {
-    this.translations = lang;
-    this.langCode = code;
+  /**
+   * setting the new translations object every time the language is updated
+   * @param payload the new translations object
+   */
+  public setLanguageJSON(payload: any): void {
+    this.translations = payload;
+    localStorage.setItem('translations', JSON.stringify(payload));
   }
 
-  public getLangObj(): any {
-    return this.translations;
-  }
-
+  /**
+   * translate based on key param and fallback
+   * @param key translations object key that is used to get the value in each language
+   * @param fallback the default value in case key is missing from the translations object
+   */
   public tr(key: string, fallback: string): string {
     let translation = fallback;
 
-    if (this.translations[key]) {
+    if (this.translations && this.translations[key]) {
       translation = this.translations[key];
     }
 

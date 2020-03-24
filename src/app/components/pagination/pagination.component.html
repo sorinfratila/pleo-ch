@@ -1,7 +1,7 @@
-<section>
-  <div class="pages">
-    <a class="pointer" [ngClass]="{ selected: page.selected }" (click)="goToPage(page)" *ngFor="let page of pages">{{
-      page.num
-    }}</a>
-  </div>
-</section>
+<a
+  class="pointer"
+  [ngClass]="{ selected: (currentPage$ | async) === page }"
+  (click)="goToPage(page)"
+  *ngFor="let page of pages$ | async"
+  >{{ page }}</a
+>

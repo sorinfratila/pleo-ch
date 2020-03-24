@@ -1,6 +1,6 @@
 {
-  "appFilter": "Filtru",
-  "appBy": "De",
+  "appFilterType": "Filtru",
+  "appFilterValue": "Valoare",
   "appFirst": "Prenume",
   "appLast": "Nume",
   "appDate": "Data",

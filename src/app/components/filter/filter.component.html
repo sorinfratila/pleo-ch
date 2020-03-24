@@ -1,14 +1,18 @@
 <section>
-  <div class="select__container">
-    <label for="property">{{ 'Filter' | tr: 'appFilter' }}:</label>
-    <select name="property" class="select" (change)="onPropertyChange($event)">
-      <option class="option" [value]="prop.value" *ngFor="let prop of properties">{{ prop.name }}</option>
+  <div class="select__container" *ngIf="filterType$ | async as filterTypes">
+    <label for="filterType">{{ 'Filter' | tr: 'appFilterType' }}:</label>
+    <select name="filterType" class="select" (change)="onFilterTypeChange($event)">
+      <option class="option" [selected]="type.selected" [value]="type.value" *ngFor="let type of filterTypes">{{
+        type.name
+      }}</option>
     </select>
   </div>
-  <div class="select__container" *ngIf="filterArray.length">
-    <label for="filter">By: </label>
-    <select name="filter" class="select" (change)="onFilterChange($event)">
-      <option class="option" [value]="filter.value" *ngFor="let filter of filterArray">{{ filter.name }}</option>
+  <div class="select__container" *ngIf="filterValue$ | async as filterValues">
+    <label for="value">{{ 'Value' | tr: 'appFilterValue' }}:</label>
+    <select name="value" class="select" (change)="onFilterValueChange($event)">
+      <option class="option" [selected]="value.selected" [value]="value.value" *ngFor="let value of filterValues">{{
+        value.name
+      }}</option>
     </select>
   </div>
 </section>

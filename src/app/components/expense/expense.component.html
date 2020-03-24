@@ -1,25 +1,28 @@
-<main>
-  <section class="header" (click)="onHeaderPress(expense.isOpen)">
-    <!-- this part contains the most important parts of the expense -->
-    <div class="left">
-      <div class="caret">
-        <i class="material-icons small" *ngIf="!expense.isOpen; else opened">keyboard_arrow_down</i>
-        <ng-template #opened>
-          <i class="material-icons small">keyboard_arrow_up</i>
-        </ng-template>
+<header (click)="onHeaderPress(expense.isOpen)">
+  <!-- the left part contains some info about the expense -->
+  <div class="left">
+    <div class="caret">
+      <i class="material-icons small" *ngIf="!expense.isOpen; else opened">keyboard_arrow_down</i>
+      <ng-template #opened>
+        <i class="material-icons small">keyboard_arrow_up</i>
+      </ng-template>
+    </div>
+    <div class="content">
+      <div class="name">
+        <span>{{ expense.user.first }}</span>
+        <span>{{ expense.user.last }}</span>
       </div>
-      <span>{{ expense.user.first }}</span>
-      <span>{{ expense.user.last }}</span>
-      <span>{{ expense.amount.value }}</span>
-      <span>{{ expense.amount.currency }}</span>
+      <div class="amount">
+        <span>{{ expense.amount.value }}</span>
+        <span>{{ expense.amount.currency }}</span>
+      </div>
     </div>
-
-    <div class="right">
-      <a (click)="onAddReceipt($event)" class="pointer"><i class="material-icons">add_photo_alternate</i></a>
-      <a (click)="onAddComment($event)" class="pointer"><i class="material-icons">add_comment</i></a>
-    </div>
-  </section>
-  <section class="accordion__container">
-    <app-accordion [expense]="expense" [showReceipts]="true"></app-accordion>
-  </section>
-</main>
+  </div>
+  <div class="right">
+    <a (click)="onAddReceipt($event)" class="pointer"><i class="material-icons">add_photo_alternate</i></a>
+    <a (click)="onAddComment($event)" class="pointer"><i class="material-icons">add_comment</i></a>
+  </div>
+</header>
+<section class="accordion__container">
+  <app-accordion [expense]="expense" [showReceipts]="true"></app-accordion>
+</section>

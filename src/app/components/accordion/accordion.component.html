@@ -6,25 +6,33 @@
     </colgroup>
     <tbody>
       <tr>
-        <td><label>Date</label></td>
+        <td>
+          <label>{{ 'Date' | tr: 'appDate' }}</label>
+        </td>
         <td>
           <p>{{ expense.date | date: 'dd  MMM  y' }}</p>
         </td>
       </tr>
       <tr>
-        <td><label>Merchant</label></td>
+        <td>
+          <label>{{ 'Merchant' | tr: 'appMerchant' }}</label>
+        </td>
         <td>
           <p>{{ expense.merchant }}</p>
         </td>
       </tr>
       <tr>
-        <td><label>Comment</label></td>
+        <td>
+          <label>{{ 'Comment' | tr: 'appComment' }}</label>
+        </td>
         <td>
           <p>{{ expense.comment }}</p>
         </td>
       </tr>
-      <tr *ngIf="showReceipts">
-        <td><label>Receipts</label></td>
+      <tr>
+        <td>
+          <label>{{ 'Receipts' | tr: 'appReceipts' }}</label>
+        </td>
         <td class="receipts">
           <div class="container">
             <app-thumbnail *ngFor="let receipt of expense.receipts" [src]="receipt.url"></app-thumbnail>
@@ -33,7 +41,9 @@
       </tr>
       <tr></tr>
       <tr>
-        <td><label>Category</label></td>
+        <td>
+          <label>{{ 'Category' | tr: 'appCategory' }}</label>
+        </td>
         <td>
           <p>{{ expense.category }}</p>
         </td>

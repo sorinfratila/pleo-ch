@@ -1,4 +1,4 @@
-import { Component, Inject, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AddImageComponent } from '../add-image/add-image.component';
 import { ExpensesService } from 'src/app/services/expenses.service';
@@ -25,6 +25,7 @@ export class AddCommentDialogComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
+      // in order to invalidate the apply button if the field is required and empty
       this.CDR.detectChanges();
     }, 50);
   }
@@ -35,12 +36,11 @@ export class AddCommentDialogComponent implements AfterViewInit {
   }
 
   public onSubmit() {
-    this.expenseService.uploadComment(this.comment, this.data.id).subscribe({
+    this.expenseService.uploadComment({ comment: this.comment, expenseId: this.data.id }).subscribe({
       next: (response: Expense) => {
         this.toast.success('Comment saved');
         this.close(response);
       },
-      error: errMsg => this.toast.error(errMsg),
     });
   }
 }

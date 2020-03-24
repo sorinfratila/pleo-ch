@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -31,20 +31,28 @@ export class AddImageComponent {
     else this.dialogRef.close();
   }
 
+  /**
+   * preview image
+   * @param receipt image passed when choosing from the OS prompt
+   */
   processReceipt(receipt: any) {
-    const file: File = receipt.files[0];
-    const reader = new FileReader();
+    try {
+      const file: File = receipt.files[0];
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      this.imageURL = reader.result as string;
-      this.CDR.detectChanges();
-    };
-    reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imageURL = reader.result as string;
+        this.CDR.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      throw e.message;
+    }
   }
 
   uploadReceipt(receipt: any) {
     const file = receipt.files[0];
-    this.expenseService.uploadReceipt(file, this.data.id).subscribe({
+    this.expenseService.uploadReceipt({ receipt: file, expenseId: this.data.id }).subscribe({
       next: (event: HttpEvent<any>) => {
         switch (event.type) {
           case HttpEventType.Response: {
@@ -60,7 +68,6 @@ export class AddImageComponent {
           }
         }
       },
-      error: errorMsg => this.toast.error(errorMsg),
     });
   }
 }

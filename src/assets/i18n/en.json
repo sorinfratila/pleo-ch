@@ -1,6 +1,6 @@
 {
-  "appFilter": "Filter",
-  "appBy": "By",
+  "appFilterType": "Filter",
+  "appFilterValue": "Value",
   "appFirst": "First Name",
   "appLast": "Last Name",
   "appDate": "Date",
