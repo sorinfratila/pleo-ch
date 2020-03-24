@@ -1,11 +1,10 @@
 import { Expense } from '../models/Expense';
 
 export enum ActionsType {
-  GET_EXPENSES = '[Expense] GetExpenses',
+  FETCH_EXPENSES = '[Expense] FetchExpenses',
+  FETCH_LANGUAGE_JSON = '[Expense] FetchLanguageJSON',
   SET_EXPENSES = '[Expense] SetExpenses',
-  // GET_PAGE_COUNT = '[Expense], GetPageCount',
   SET_PAGES = '[Expense], SetPages',
-  GET_LANGUAGE_JSON = '[Expense] GetLanguageJSON',
   SET_EXPENSE_FILTER_TYPE = '[Expense] SetFilterType',
   SET_EXPENSE_FILTER_VALUE = '[Expense] SetFilterValue',
   SET_LANGUAGE_CODE = '[Expense] SetLanguageCode',
@@ -13,8 +12,8 @@ export enum ActionsType {
   SET_TOTAL_EXPENSES = '[Expense] SetTotalExpenses',
 }
 
-export class GetExpenses {
-  public static readonly type = ActionsType.GET_EXPENSES;
+export class FetchExpenses {
+  public static readonly type = ActionsType.FETCH_EXPENSES;
   constructor(public payload: { limit: number; offset: number } = { limit: 25, offset: 0 }) {}
 }
 
@@ -43,8 +42,8 @@ export class SetLanguageCode {
   constructor(public langCode: string) {}
 }
 
-export class GetLanguageJSON {
-  public static readonly type = ActionsType.GET_LANGUAGE_JSON;
+export class FetchLanguageJSON {
+  public static readonly type = ActionsType.FETCH_LANGUAGE_JSON;
   constructor() {}
 }
 

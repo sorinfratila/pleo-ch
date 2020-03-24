@@ -2,7 +2,7 @@ export interface Expense {
   id: string;
   amount: {
     value: string;
-    currency: Currency;
+    currency: string;
   };
   date: Date;
   merchant: string;
@@ -18,8 +18,7 @@ export interface Expense {
   isOpen?: boolean; // used for toggling the expense accordions
 }
 
-export type Currency = 'DKK' | 'GBP' | 'EUR';
-
+// Example of Expense structure
 // {
 //   "id": "5b996064dfd5b783915112f5",
 //   "amount": {

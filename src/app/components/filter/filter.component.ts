@@ -4,7 +4,7 @@ import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
 import { Store, Select } from '@ngxs/store';
 import {
-  GetExpenses,
+  FetchExpenses,
   SetFilterValue,
   SetFilterType,
   SetExpenses,
@@ -29,7 +29,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   /** keeps the total of expenses when filtering */
   expenses: Expense[];
 
-  pages: number[];
+  pages: number[]; // the pages array for pagination
   date: Set<any>; // holds all the years found in DB expenses
   currency: Set<any>; // holds all the currencies found in DB expenses
   selectedFilterType: string; // keeps track in component which filter is selected
@@ -51,7 +51,7 @@ export class FilterComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
-    this.setSelectedFilterType();
+    this.selectedFilterType = this.getSelectedFilterType();
   }
 
   ngOnDestroy(): void {
@@ -64,8 +64,8 @@ export class FilterComponent implements OnInit, OnDestroy {
   /**
    * getting the current selection for the filterType to initialize the selectedFilterType prop
    */
-  private setSelectedFilterType = () => {
-    this.store.selectSnapshot(state => {
+  private getSelectedFilterType = () => {
+    return this.store.selectSnapshot(state => {
       const {
         expenses: {
           filter: { type },
@@ -73,7 +73,8 @@ export class FilterComponent implements OnInit, OnDestroy {
       } = state;
 
       const selected = type.find((ty: any) => ty.selected);
-      if (selected) this.selectedFilterType = selected.value;
+      if (selected) return selected.value;
+      return 'default';
     });
   };
 
@@ -123,7 +124,11 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.store.dispatch(new SetFilterValue(newFilterValues));
 
       if (filterValue === 'default') {
-        this.store.dispatch(new GetExpenses());
+        // if the default filterValue is selected
+        // getting the totalExpenses to reset the number of pages
+        // dispatching getExpenses at the same time
+        const pages = this.getPagesFromSnapshot();
+        this.store.dispatch([new FetchExpenses(), new SetPages(pages)]);
       } else {
         // if there is an active filter
         // setting totaExpenses to 1 to force only one page in the pagination footer
@@ -132,6 +137,34 @@ export class FilterComponent implements OnInit, OnDestroy {
       }
     });
   };
+
+  /**
+   * calculate pages array from totalExpenses state snapshot
+   */
+  private getPagesFromSnapshot = () => {
+    return this.store.selectSnapshot(state => {
+      const {
+        expenses: { totalExpenses },
+      } = state;
+      const pages = this.getPagesArray(totalExpenses);
+
+      return pages;
+    });
+  };
+
+  /**
+   * calculates pages array based on the current totalExpenses saved in state
+   * @param totalExpenses total from BE
+   */
+  private getPagesArray(totalExpenses: number): number[] {
+    const pages = [];
+    const pagesCount = Math.ceil(totalExpenses / 25);
+    for (let i = 1; i <= pagesCount; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
 
   private getFilteredExpenses = (selectedFilterType: string, selectedFilterValue: string) => {
     switch (selectedFilterType) {
@@ -180,38 +213,18 @@ export class FilterComponent implements OnInit, OnDestroy {
           selected: false,
         }));
       } else {
-        //
-        this.store.selectSnapshot(state => {
-          const {
-            expenses: { totalExpenses },
-          } = state;
-          const pages = this.getPagesArray(totalExpenses);
-
-          this.store.dispatch(new SetPages(pages));
-        });
+        // default filter selected => get normal results
+        const pages = this.getPagesFromSnapshot();
+        this.store.dispatch(new SetPages(pages));
       }
 
-      newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true });
+      newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true }); // prepend the default values for the filter
       this.store.dispatch([
         new SetFilterType(newFilterTypes),
         new SetFilterValue(newFilterValues),
-        new GetExpenses(),
+        new FetchExpenses(),
         new SetCurrentPage(1),
       ]);
     });
   };
-
-  /**
-   * calculates pages array based on the current totalExpenses saved in state
-   * @param totalExpenses total from BE
-   */
-  private getPagesArray(totalExpenses: number): number[] {
-    const pages = [];
-    const pagesCount = Math.ceil(totalExpenses / 25);
-    for (let i = 1; i <= pagesCount; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  }
 }

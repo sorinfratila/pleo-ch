@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { ExpenseState } from 'src/app/store/expense.state';
 import { Observable } from 'rxjs';
-import { GetExpenses, SetCurrentPage } from 'src/app/store/expense.actions';
+import { FetchExpenses, SetCurrentPage } from 'src/app/store/expense.actions';
 
 @Component({
   selector: 'app-pagination',
@@ -22,11 +22,11 @@ export class PaginationComponent {
   constructor(private store: Store) {}
 
   /**
-   * change selected page and dispatch @GetExpenses and @SetCurrentPage actions
+   * change selected page and dispatch @FetchExpenses and @SetCurrentPage actions
    * @param page the page number to go to
    */
   public goToPage = (page: any): void => {
     const payload = { limit: 25, offset: (page - 1) * 25 };
-    this.store.dispatch([new GetExpenses(payload), new SetCurrentPage(page)]);
+    this.store.dispatch([new FetchExpenses(payload), new SetCurrentPage(page)]);
   };
 }

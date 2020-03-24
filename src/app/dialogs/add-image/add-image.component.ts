@@ -22,7 +22,6 @@ export class AddImageComponent {
     private expenseService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
-    private store: Store,
   ) {
     this.imageURL = '';
     this.progress = 0;
@@ -44,7 +43,7 @@ export class AddImageComponent {
       };
       reader.readAsDataURL(file);
     } catch (e) {
-      throw e;
+      throw e.message;
     }
   }
 
@@ -67,7 +66,7 @@ export class AddImageComponent {
         }
       },
       error: error => {
-        throw error;
+        throw error.message;
       },
     });
   }

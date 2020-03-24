@@ -13,10 +13,9 @@ export class GlobalErrorHandler extends ErrorHandler {
   }
 
   handleError(error: any) {
-    console.log('GLOBAL ERROR', error);
     this.toastrService.error(error, null, { onActivateTick: true });
 
     // Make sure to rethrow the error so Angular can pick it up
-    throw error;
+    // throw error;
   }
 }
