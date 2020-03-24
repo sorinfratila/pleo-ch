@@ -1,7 +1,5 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
-import { Store } from '@ngxs/store';
-import { SetExpenses } from 'src/app/store/expense.actions';
 
 @Component({
   selector: 'app-expense',
@@ -15,7 +13,8 @@ export class ExpenseComponent {
   // to trigger the method calls from overview components
   @Output() addReceipt = new EventEmitter<any>();
   @Output() addComment = new EventEmitter<any>();
-  constructor(private store: Store) {}
+
+  constructor() {}
 
   /**
    * toggle the expense to see/hide details

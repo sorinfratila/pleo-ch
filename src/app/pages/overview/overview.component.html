@@ -20,7 +20,7 @@
       <ul class="list" *ngIf="innerWidth < 1400; else table">
         <!-- container for the list of expenses with each row being an expense -->
         <app-expense
-          *ngFor="let expense of expenses$ | async; let j = index"
+          *ngFor="let expense of expenses$ | async"
           [expense]="expense"
           (addReceipt)="onAddReceipt(expense, $event)"
           (addComment)="onAddComment(expense, $event)"
