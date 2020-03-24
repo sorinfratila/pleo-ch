@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -11,20 +10,25 @@ import { ToastrService } from 'ngx-toastr';
 export class ExpensesService {
   baseURL: string;
 
-  constructor(private http: HttpClient, private toast: ToastrService) {
+  constructor(private http: HttpClient) {
     this.baseURL = environment.rootURL;
   }
 
+  /**
+   * route for getting the expenses from BE
+   * @param payload limit and offset values for pagination
+   */
   public getExpenses(payload?: any): Observable<any> {
     const link = payload ? `?limit=${payload.limit}&offset=${payload.offset}` : '';
     return this.http.get(`${this.baseURL}/expenses${link}`).pipe(catchError(this.errorHandler));
   }
 
-  public getAllExpenses({ limit }): Observable<any> {
-    return this.http.get(`${this.baseURL}/expenses?limit=${limit}&offset=${0}`).pipe(catchError(this.errorHandler));
-  }
-
-  public uploadReceipt({ receipt, expenseId }): Observable<any> {
+  /**
+   * uploads receipt for the specific expense
+   * @param payload receipt image data and the expense Id to upload to
+   */
+  public uploadReceipt(payload: any): Observable<any> {
+    const { expenseId, receipt } = payload;
     const formData = new FormData();
 
     formData.append('receipt', receipt);
@@ -37,18 +41,21 @@ export class ExpensesService {
       .pipe(catchError(this.errorHandler));
   }
 
+  /**
+   * uploads comment for the specific expense
+   * @param payload comment and the expense Id to upload to
+   */
   public uploadComment(payload: any): Observable<any> {
     const { comment, expenseId } = payload;
     const data = { comment };
     return this.http.post(`${this.baseURL}/expenses/${expenseId}`, data).pipe(catchError(this.errorHandler));
   }
 
+  /**
+   * re throw errors caught while performing http calls in this service
+   * @param error http response error
+   */
   private errorHandler(error: HttpErrorResponse) {
-    let errMsg = '';
-    // client
-    if (error.error instanceof ErrorEvent) errMsg = error.error.message;
-    // server
-    else errMsg = `Error Code: ${error.status}\nMessage: ${error.message}`;
-    return throwError(errMsg);
+    return throwError(error);
   }
 }

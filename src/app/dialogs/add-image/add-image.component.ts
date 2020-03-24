@@ -1,10 +1,9 @@
-import { Component, OnInit, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ExpensesService } from 'src/app/services/expenses.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Expense } from 'src/app/models/Expense';
-import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'app-add-image',
@@ -22,7 +21,6 @@ export class AddImageComponent {
     private expenseService: ExpensesService,
     private toast: ToastrService,
     private CDR: ChangeDetectorRef,
-    private store: Store,
   ) {
     this.imageURL = '';
     this.progress = 0;
@@ -33,6 +31,10 @@ export class AddImageComponent {
     else this.dialogRef.close();
   }
 
+  /**
+   * preview image
+   * @param receipt image passed when choosing from the OS prompt
+   */
   processReceipt(receipt: any) {
     try {
       const file: File = receipt.files[0];
@@ -44,7 +46,7 @@ export class AddImageComponent {
       };
       reader.readAsDataURL(file);
     } catch (e) {
-      throw e;
+      throw e.message;
     }
   }
 
@@ -65,9 +67,6 @@ export class AddImageComponent {
             break;
           }
         }
-      },
-      error: error => {
-        throw error;
       },
     });
   }

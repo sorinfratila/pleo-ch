@@ -5,7 +5,7 @@ import { TranslationService } from '../services/translation.service';
   name: 'tr',
 })
 export class TranslatePipe implements PipeTransform {
-  constructor(public i18n: TranslationService) {}
+  constructor(private i18n: TranslationService) {}
 
   transform(fallback: any, key: string): string {
     return this.i18n.tr(key, fallback);

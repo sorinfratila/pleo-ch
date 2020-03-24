@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { Expense } from 'src/app/models/Expense';
 
 @Component({
@@ -13,6 +13,7 @@ export class ExpenseComponent {
   // to trigger the method calls from overview components
   @Output() addReceipt = new EventEmitter<any>();
   @Output() addComment = new EventEmitter<any>();
+
   constructor() {}
 
   /**

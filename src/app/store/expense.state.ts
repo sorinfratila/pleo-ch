@@ -3,28 +3,29 @@ import { State, Action, StateContext, Selector, NgxsOnInit, NgxsSimpleChange } f
 import { ExpensesService } from '../services/expenses.service';
 import { TranslationService } from '../services/translation.service';
 import {
-  GetExpenses,
+  FetchExpenses,
   SetFilterType,
   SetFilterValue,
-  UpdateExpense,
   SetLanguageCode,
   SetCurrentPage,
-  GetLanguageJSON,
+  FetchLanguageJSON,
   SetTotalExpenses,
   SetExpenses,
+  SetPages,
 } from './expense.actions';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 
 export class ExpensesStateModel {
   expenses: Expense[];
+  totalExpenses: number;
   filter: {
-    type: string;
-    value: string;
+    type: any[];
+    value: any[];
   };
   langCode: string;
-  totalExpenses: number;
   currentPage: number;
+  pages: number[];
 }
 
 @State<ExpensesStateModel>({
@@ -33,11 +34,16 @@ export class ExpensesStateModel {
     expenses: [],
     totalExpenses: 0,
     filter: {
-      type: 'default',
-      value: 'default',
+      type: [
+        { value: 'default', name: 'All entries', selected: true },
+        { value: 'date', name: 'Date', selected: false },
+        { value: 'currency', name: 'Currency', selected: false },
+      ],
+      value: [{ value: 'default', name: 'All entries', selected: true }],
     },
     langCode: 'en',
     currentPage: 1,
+    pages: [1],
   },
 })
 @Injectable()
@@ -59,8 +65,18 @@ export class ExpenseState implements NgxsOnInit {
   }
 
   @Selector()
-  static getFilterType(state: ExpensesStateModel): string {
+  static getFilterType(state: ExpensesStateModel): any[] {
     return state.filter.type;
+  }
+
+  @Selector()
+  static getFilterValue(state: ExpensesStateModel): any[] {
+    return state.filter.value;
+  }
+
+  @Selector()
+  static getPages(state: ExpensesStateModel): number[] {
+    return state.pages;
   }
 
   @Selector()
@@ -72,7 +88,7 @@ export class ExpenseState implements NgxsOnInit {
     const localState = localStorage.getItem('state');
     const state = getState();
 
-    if (localState && JSON.parse(localState).filter.value === 'default') {
+    if (localState) {
       // if we already saved a local state, get that state
       const savedState = JSON.parse(localState);
       setState({
@@ -80,24 +96,24 @@ export class ExpenseState implements NgxsOnInit {
         ...savedState,
       });
     } else {
-      // initialize state
+      // initialize state and fetch languageJson
 
-      dispatch([GetExpenses, GetLanguageJSON]);
+      dispatch([FetchExpenses, FetchLanguageJSON]);
     }
   }
 
   public ngxsOnChanges(change: NgxsSimpleChange) {
     if (change) {
-      const { currentValue, previousValue } = change;
-      if (previousValue && currentValue) {
-        // saving state on every change to localStorage for recovery
+      const { currentValue, firstChange } = change;
+      if (!firstChange) {
+        // saving state on every change except the first to localStorage for recovery
         localStorage.setItem('state', JSON.stringify(currentValue));
       }
     }
   }
 
-  @Action(GetExpenses)
-  getExpenses({ patchState, dispatch }: StateContext<ExpensesStateModel>, action: GetExpenses) {
+  @Action(FetchExpenses)
+  getExpenses({ patchState, dispatch }: StateContext<ExpensesStateModel>, action: FetchExpenses) {
     return this.expensesService.getExpenses(action.payload).pipe(
       map((getExpensesResponse: any) => {
         const { expenses, total } = getExpensesResponse;
@@ -108,6 +124,13 @@ export class ExpenseState implements NgxsOnInit {
     );
   }
 
+  @Action(SetPages)
+  setPages({ patchState }: StateContext<ExpensesStateModel>, { pages }: SetPages) {
+    patchState({
+      pages,
+    });
+  }
+
   @Action(SetExpenses)
   setExpenses({ patchState }: StateContext<ExpensesStateModel>, { expenses }: SetExpenses) {
     patchState({ expenses });
@@ -116,27 +139,6 @@ export class ExpenseState implements NgxsOnInit {
   @Action(SetTotalExpenses)
   setTotalExpenses({ patchState }: StateContext<ExpensesStateModel>, { total }: SetTotalExpenses) {
     patchState({ totalExpenses: total });
-  }
-
-  @Action(UpdateExpense)
-  updateExpense(ctx: StateContext<ExpensesStateModel>, action: UpdateExpense) {
-    const { expenses } = ctx.getState();
-    const {
-      expense: { id },
-      expense,
-    } = action;
-    const expenseToUpdateIndex = expenses.findIndex((ex: Expense) => ex.id === id);
-    if (expenseToUpdateIndex !== -1) {
-      // if expense exists,
-      // copy the state expenses,
-      // splice the updated expense in
-      // and patch state
-      const expensesCopy = [...expenses];
-      expensesCopy.splice(expenseToUpdateIndex, 1, expense);
-      ctx.patchState({
-        expenses: expensesCopy,
-      });
-    }
   }
 
   @Action(SetFilterType)
@@ -165,20 +167,14 @@ export class ExpenseState implements NgxsOnInit {
   setLanguageCode({ patchState, dispatch }: StateContext<ExpensesStateModel>, { langCode }: SetLanguageCode) {
     patchState({ langCode });
 
-    return dispatch(new GetLanguageJSON());
+    return dispatch(new FetchLanguageJSON());
   }
 
-  @Action(GetLanguageJSON)
+  @Action(FetchLanguageJSON)
   async getLanguageJSON({ getState }: StateContext<ExpensesStateModel>) {
     const { langCode } = getState();
-
-    try {
-      const langObj = await this.i18nService.getLanguageJSON(langCode);
-      this.i18nService.setLanguageJSON(langObj);
-    } catch (e) {
-      // errors are caught by the global error handler
-      throw e;
-    }
+    const langObj = await this.i18nService.getLanguageJSON(langCode);
+    this.i18nService.setLanguageJSON(langObj);
   }
 
   @Action(SetCurrentPage)

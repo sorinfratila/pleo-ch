@@ -4,14 +4,14 @@ import { ExpensesService } from 'src/app/services/expenses.service';
 import { Expense } from 'src/app/models/Expense';
 import { Store, Select } from '@ngxs/store';
 import {
-  GetExpenses,
-  SetTotalExpenses,
+  FetchExpenses,
   SetFilterValue,
   SetFilterType,
   SetExpenses,
   SetCurrentPage,
+  SetPages,
 } from 'src/app/store/expense.actions';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { ExpenseState } from 'src/app/store/expense.state';
 
@@ -29,34 +29,29 @@ export class FilterComponent implements OnInit, OnDestroy {
   /** keeps the total of expenses when filtering */
   expenses: Expense[];
 
-  /** the array of filter values generated from BE data */
-  filterValues: any[];
-
-  /** the static array of filters types based on the BE data */
-  filterTypes: any[];
-
+  pages: number[]; // the pages array for pagination
   date: Set<any>; // holds all the years found in DB expenses
   currency: Set<any>; // holds all the currencies found in DB expenses
   selectedFilterType: string; // keeps track in component which filter is selected
 
   /** observing the filterType to preselect in case of page change/page refresh */
   @Select(ExpenseState.getFilterType)
-  public filterType$: Observable<string>;
+  public filterType$: Observable<any[]>;
+
+  /** observing the filterType to preselect in case of page change/page refresh */
+  @Select(ExpenseState.getFilterValue)
+  public filterValue$: Observable<any[]>;
 
   constructor(private store: Store, private expensesService: ExpensesService, private toast: ToastrService) {
     this.destroy$ = new Subject<any>();
     this.date = new Set();
     this.currency = new Set();
-    this.filterValues = [];
-    this.filterTypes = [
-      { value: 'default', name: 'All entries' },
-      { value: 'date', name: 'Date' },
-      { value: 'currency', name: 'Currency' },
-    ];
+    this.pages = [];
   }
 
   ngOnInit(): void {
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
+    this.selectedFilterType = this.getSelectedFilterType();
   }
 
   ngOnDestroy(): void {
@@ -65,6 +60,23 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.destroy$.complete();
     }
   }
+
+  /**
+   * getting the current selection for the filterType to initialize the selectedFilterType prop
+   */
+  private getSelectedFilterType = () => {
+    return this.store.selectSnapshot(state => {
+      const {
+        expenses: {
+          filter: { type },
+        },
+      } = state;
+
+      const selected = type.find((ty: any) => ty.selected);
+      if (selected) return selected.value;
+      return 'default';
+    });
+  };
 
   /**
    * get all expenses for filterting
@@ -93,42 +105,86 @@ export class FilterComponent implements OnInit, OnDestroy {
    * also dispatching actions to handle all the state updates
    * filter values are dynamically generated
    */
-  public onFilterValueChange = (ev: any) => {
+  public onFilterValueChange = (ev?: any) => {
     const {
       target: { value: filterValue },
     } = ev;
+    const filteredExpenses = this.getFilteredExpenses(this.selectedFilterType, filterValue);
+    const comparisonValue = this.selectedFilterType === 'currency' ? filterValue : Number(filterValue);
 
-    let filteredExpenses = [];
+    this.filterValue$.pipe(take(1)).subscribe(filterValues => {
+      const newFilterValues = filterValues.map(filter => {
+        if (filter.value === comparisonValue) {
+          return { ...filter, selected: true };
+        }
 
-    switch (this.selectedFilterType) {
+        return { ...filter, selected: false };
+      });
+
+      this.store.dispatch(new SetFilterValue(newFilterValues));
+
+      if (filterValue === 'default') {
+        // if the default filterValue is selected
+        // getting the totalExpenses to reset the number of pages
+        // dispatching getExpenses at the same time
+        const pages = this.getPagesFromSnapshot();
+        this.store.dispatch([new FetchExpenses(), new SetPages(pages)]);
+      } else {
+        // if there is an active filter
+        // setting totaExpenses to 1 to force only one page in the pagination footer
+        // also selecting the first page in case there was another one selected
+        this.store.dispatch([new SetPages([1]), new SetCurrentPage(1), new SetExpenses(filteredExpenses)]);
+      }
+    });
+  };
+
+  /**
+   * generate pages array based on totalExpenses state snapshot
+   */
+  private getPagesFromSnapshot = () => {
+    return this.store.selectSnapshot(state => {
+      const {
+        expenses: { totalExpenses },
+      } = state;
+      const pages = this.getPagesArray(totalExpenses);
+
+      return pages;
+    });
+  };
+
+  /**
+   * calculates pages array based on the totalExpenses param from state
+   * @param totalExpenses total entries in the BE
+   */
+  private getPagesArray(totalExpenses: number): number[] {
+    const pages = [];
+    const pagesCount = Math.ceil(totalExpenses / 25);
+    for (let i = 1; i <= pagesCount; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  /**
+   * generate filteredExpenses array used to show the filtered results instead of normal results
+   */
+  private getFilteredExpenses = (selectedFilterType: string, selectedFilterValue: string) => {
+    switch (selectedFilterType) {
       case 'currency': {
-        filteredExpenses = this.expenses.filter((ex: Expense) => ex.amount.currency === filterValue);
-        break;
+        return this.expenses.filter((ex: Expense) => ex.amount.currency === selectedFilterValue);
       }
 
       case 'date': {
-        filteredExpenses = this.expenses.filter((ex: Expense) => {
+        return this.expenses.filter((ex: Expense) => {
           const year = new Date(ex.date).getFullYear();
-          return year === Number(filterValue);
+          return year === Number(selectedFilterValue);
         });
-        break;
       }
 
       default: {
-        break;
+        return [];
       }
-    }
-
-    this.store.dispatch([
-      new SetFilterValue(filterValue),
-      filteredExpenses.length ? new SetExpenses(filteredExpenses) : new GetExpenses(),
-    ]);
-
-    if (filteredExpenses.length) {
-      // if there is an active filter
-      // setting totaExpenses to 1 to force only one page in the pagination footer
-      // also selecting the first page in case there was another one selected
-      this.store.dispatch([new SetTotalExpenses(1), new SetCurrentPage(1)]);
     }
   };
 
@@ -141,15 +197,37 @@ export class FilterComponent implements OnInit, OnDestroy {
       target: { value: filterType },
     } = ev;
 
+    let newFilterValues = [];
     this.selectedFilterType = filterType;
 
-    if (filterType !== 'default') {
-      this.filterValues = Array.from(this[filterType].values()).map(val => ({ value: val, name: val }));
+    this.filterType$.pipe(take(1)).subscribe(filterTypes => {
+      const newFilterTypes = filterTypes.map(filter => {
+        if (filter.value === filterType) {
+          return { ...filter, selected: true };
+        }
 
-      // adding the default values always the first array item
-      this.filterValues.unshift({ value: 'default', name: 'All entries' });
-    } else this.filterValues = [];
+        return { ...filter, selected: false };
+      });
 
-    this.store.dispatch([new SetFilterType(filterType), new GetExpenses(), new SetCurrentPage(1)]);
+      if (filterType !== 'default') {
+        newFilterValues = Array.from(this[filterType].values()).map(val => ({
+          value: val,
+          name: val,
+          selected: false,
+        }));
+      } else {
+        // default filter selected => get normal results
+        const pages = this.getPagesFromSnapshot();
+        this.store.dispatch(new SetPages(pages));
+      }
+
+      newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true }); // prepend the default values for the filter
+      this.store.dispatch([
+        new SetFilterType(newFilterTypes),
+        new SetFilterValue(newFilterValues),
+        new FetchExpenses(),
+        new SetCurrentPage(1),
+      ]);
+    });
   };
 }
