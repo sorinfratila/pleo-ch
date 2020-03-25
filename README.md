@@ -1,4 +1,4 @@
-# Pleo front-end challenge
+# Front-end challenge
 
 - This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.5.
 - In order to run this project as intended, please install and run [this API](https://github.com/sorinfratila/frontend-challenge) on a local machine; more details can be found in the README file [here](https://github.com/sorinfratila/frontend-challenge/blob/master/api/README.md)

@@ -1,4 +1,4 @@
-# Pleo front-end challenge project description
+# Front-end challenge project description
 
 I have to say, I was really excited to work on this project because I got the chance to show you my skills, but also because I decided to learn something new and play around with it. I am talking about the [NGXS](https://www.ngxs.io/) library, the [RxJS](https://rxjs.dev/) library (was using it before, but I managed to learn quite a few more operators and best practices) and the [Karma](https://karma-runner.github.io) testing framework. The reason I chose [Angular](https://angular.io/) is because I am most familiar with and also to finish this project in the shortest amount of time.
 
