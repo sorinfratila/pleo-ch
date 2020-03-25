@@ -52,6 +52,12 @@ export class FilterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getAllExpenses({ limit: this.totalEntries, offset: 0 });
     this.selectedFilterType = this.getSelectedFilterType();
+
+    // setting the pages on first init
+    if (this.selectedFilterType === 'default') {
+      const pages = this.getPagesArray(this.totalEntries);
+      this.store.dispatch(new SetPages(pages));
+    }
   }
 
   ngOnDestroy(): void {
@@ -215,17 +221,18 @@ export class FilterComponent implements OnInit, OnDestroy {
           name: val,
           selected: false,
         }));
-      } else {
-        // default filter selected => get normal results
-        const pages = this.getPagesFromSnapshot();
-        this.store.dispatch(new SetPages(pages));
       }
 
       newFilterValues.unshift({ value: 'default', name: 'All entries', selected: true }); // prepend the default values for the filter
+
+      // calculating pages from totalExpenses in state
+      const pages = this.getPagesFromSnapshot();
+
       this.store.dispatch([
+        new FetchExpenses(),
+        new SetPages(pages),
         new SetFilterType(newFilterTypes),
         new SetFilterValue(newFilterValues),
-        new FetchExpenses(),
         new SetCurrentPage(1),
       ]);
     });
