@@ -18,9 +18,9 @@
 - in TypeScript
 - with localization support for en and ro;
 
-## Development server
+## Development server and how to run
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+First run `npm install` and afterwards `ng serve` for a dev server. Navigate to `http://localhost:4200/`. For the app to show some data, please make sure you have [the API](https://github.com/sorinfratila/frontend-challenge) running.
 
 ## Build
 
