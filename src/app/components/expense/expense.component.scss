@@ -8,6 +8,7 @@ header {
   border-radius: 0.5rem;
   margin-bottom: 0.3rem;
   color: $black-02;
+  cursor: pointer;
 
   .left {
     @extend .truncate;
@@ -16,6 +17,15 @@ header {
     font-size: 1.2rem;
     border-radius: 0.5rem;
     width: 85%;
+
+    label {
+
+
+      input[type=checkbox] {
+        display: none;
+      }
+    }
+
 
     .content {
       width: 100%;
@@ -26,6 +36,15 @@ header {
     .caret {
       display: flex;
       align-items: center;
+      //justify-content: center;
+
+      i {
+        transition: transform .3s ease;
+
+        &.isOpen {
+          transform: rotate(180deg);
+        }
+      }
     }
 
     span {

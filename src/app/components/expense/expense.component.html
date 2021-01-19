@@ -2,10 +2,7 @@
   <!-- the left part contains some info about the expense -->
   <div class="left">
     <div class="caret">
-      <i class="material-icons small" *ngIf="!expense.isOpen; else opened">keyboard_arrow_down</i>
-      <ng-template #opened>
-        <i class="material-icons small">keyboard_arrow_up</i>
-      </ng-template>
+      <i class="material-icons small" [class.isOpen]="expense.isOpen">keyboard_arrow_down</i>
     </div>
     <div class="content">
       <div class="name">

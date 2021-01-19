@@ -1,11 +1,11 @@
 {
   "appFilterType": "Filter",
   "appFilterValue": "Value",
-  "appFirst": "First Name",
-  "appLast": "Last Name",
-  "appDate": "Date",
+  "appFirst": "First name",
+  "appLast": "Last name",
+  "date": "Date",
   "appValue": "Value",
-  "appCurrency": "Currency",
+  "currency": "Currency",
   "appMerchant": "Merchant",
   "appReceipts": "Receipts",
   "appReceipt": "Receipt",
@@ -17,6 +17,6 @@
   "appCancel": "Cancel",
   "appAddCommentText": "Here you can add a comment to the expense",
   "appEmptyList": "Expenses list is empty, is the API running ?",
-  "appAllEntries": "All Entries",
+  "default": "All entries",
   "appLanguage": "Language"
 }

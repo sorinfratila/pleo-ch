@@ -1,17 +1,17 @@
 <section>
   <div class="select__container" *ngIf="filterType$ | async as filterTypes">
     <label for="filterType">{{ 'Filter' | tr: 'appFilterType' }}:</label>
-    <select name="filterType" class="select" (change)="onFilterTypeChange($event)">
+    <select id="filterType" name="filterType" class="select" (change)="onFilterTypeChange($event)">
       <option class="option" [selected]="type.selected" [value]="type.value" *ngFor="let type of filterTypes">{{
-        type.name
+        type.name | tr: type.value
       }}</option>
     </select>
   </div>
   <div class="select__container" *ngIf="filterValue$ | async as filterValues">
     <label for="value">{{ 'Value' | tr: 'appFilterValue' }}:</label>
-    <select name="value" class="select" (change)="onFilterValueChange($event)">
+    <select id="value" name="value" class="select" (change)="onFilterValueChange($event)">
       <option class="option" [selected]="value.selected" [value]="value.value" *ngFor="let value of filterValues">{{
-        value.name
+        value.name | tr: value.value
       }}</option>
     </select>
   </div>
